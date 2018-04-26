@@ -1,7 +1,9 @@
 package com.bradcypert.textico.services;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.Telephony;
 
 import com.bradcypert.textico.models.SMS;
@@ -83,6 +85,13 @@ public class SmsService {
         }
 
         return messages;
+    }
+
+    public static void flagMessageAsRead(ContentResolver contentResolver, String number) {
+        ContentValues values = new ContentValues();
+        values.put("read", "1");
+        Uri uri = Uri.parse("content://sms/inbox");
+        contentResolver.update(uri, values, "address=" + number, null);
     }
 
     private static SMS buildSmsFromCursor(Cursor c) throws Exception {

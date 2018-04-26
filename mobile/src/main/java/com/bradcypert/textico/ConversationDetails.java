@@ -43,6 +43,10 @@ public class ConversationDetails extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_details);
 
+        String key = getKeyFromIntent(true);
+        if (key != null) {
+            SmsService.flagMessageAsRead(getContentResolver(), key);
+        }
         setupMessageList();
         setupSendButton();
         setupPictureButton();
