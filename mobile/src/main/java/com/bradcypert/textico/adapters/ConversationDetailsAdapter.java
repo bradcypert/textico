@@ -1,6 +1,7 @@
 package com.bradcypert.textico.adapters;
 
 import android.content.Context;
+import android.support.v4.view.GravityCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bradcypert.textico.R;
@@ -29,18 +31,20 @@ public class ConversationDetailsAdapter extends ArrayAdapter {
         }
 
         TextView bodyView = (TextView) convertView.findViewById(R.id.message_body);
-        LinearLayout messageContainer = (LinearLayout) convertView.findViewById(R.id.message_container);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) bodyView.getLayoutParams();
         if (message != null) {
             if (message.isSentByMe()) {
                 bodyView.setBackgroundResource(R.drawable.chat_bubble_mine);
-                messageContainer.setHorizontalGravity(Gravity.END);
-                messageContainer.setGravity(Gravity.END);
+                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                params.setMarginEnd(0);
+                params.setMarginStart(120);
             } else {
                 bodyView.setBackgroundResource(R.drawable.chat_bubble);
-                messageContainer.setHorizontalGravity(Gravity.START);
-                messageContainer.setGravity(Gravity.START);
+                params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                params.setMarginStart(0);
+                params.setMarginEnd(120);
             }
-
+            bodyView.setLayoutParams(params);
             bodyView.setText(message.getBody());
         }
         return convertView;

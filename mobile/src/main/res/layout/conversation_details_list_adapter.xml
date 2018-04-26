@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/message_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="2dp"
     android:paddingLeft="25dp"
     android:paddingRight="25dp"
+    android:gravity="end"
     android:paddingTop="2dp">
 
     <TextView
@@ -17,4 +18,4 @@
         android:padding="8dp"
         android:textColorLink="@color/linkBlue"
         android:textColor="@android:color/white" />
-</LinearLayout>
+</RelativeLayout>
