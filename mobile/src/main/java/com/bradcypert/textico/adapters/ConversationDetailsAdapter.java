@@ -29,17 +29,20 @@ public class ConversationDetailsAdapter extends ArrayAdapter {
         }
 
         TextView bodyView = (TextView) convertView.findViewById(R.id.message_body);
-        if (message.isSentByMe()) {
-            bodyView.setBackgroundResource(R.drawable.chat_bubble_mine);
-            LinearLayout messageContainer = (LinearLayout) convertView.findViewById(R.id.message_container);
-            messageContainer.setHorizontalGravity(Gravity.END);
-        } else {
-            bodyView.setBackgroundResource(R.drawable.chat_bubble);
-            LinearLayout messageContainer = (LinearLayout) convertView.findViewById(R.id.message_container);
-            messageContainer.setHorizontalGravity(Gravity.START);
-        }
+        LinearLayout messageContainer = (LinearLayout) convertView.findViewById(R.id.message_container);
+        if (message != null) {
+            if (message.isSentByMe()) {
+                bodyView.setBackgroundResource(R.drawable.chat_bubble_mine);
+                messageContainer.setHorizontalGravity(Gravity.END);
+                messageContainer.setGravity(Gravity.END);
+            } else {
+                bodyView.setBackgroundResource(R.drawable.chat_bubble);
+                messageContainer.setHorizontalGravity(Gravity.START);
+                messageContainer.setGravity(Gravity.START);
+            }
 
-        bodyView.setText(message.getBody());
+            bodyView.setText(message.getBody());
+        }
         return convertView;
     }
 }

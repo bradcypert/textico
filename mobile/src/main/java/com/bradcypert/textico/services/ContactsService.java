@@ -21,7 +21,7 @@ public class ContactsService {
     }
 
     private static Contact buildContactFromCursor(Cursor c) {
-        if(c.getCount() != 0) {
+        if (c.getCount() != 0) {
             return new Contact.ContactBuilder()
                     .setName(c.getString(c.getColumnIndex("DISPLAY_NAME")))
                     .setPicUri(c.getString(c.getColumnIndex("PHOTO_URI")))

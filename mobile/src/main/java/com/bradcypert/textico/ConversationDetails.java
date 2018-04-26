@@ -133,8 +133,8 @@ public class ConversationDetails extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String value = sendText.getText().toString();
-                if(!value.equals("")) {
-                    if(ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                if (!value.equals("")) {
+                    if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
                         smsManager.sendTextMessage(getKeyFromIntent(false), null, value, null, null);
                         sendText.setText("");
                         try {

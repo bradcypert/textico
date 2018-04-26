@@ -1,22 +1,20 @@
 package com.bradcypert.textico;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -24,13 +22,10 @@ import android.widget.Spinner;
 
 import com.bradcypert.textico.adapters.MessageListAdapter;
 import com.bradcypert.textico.models.SMS;
-import com.bradcypert.textico.receivers.SmsListener;
 import com.bradcypert.textico.services.SmsService;
 
 import java.util.ArrayList;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.jar.Manifest;
 
 public class MessageList extends AppCompatActivity {
 
@@ -74,8 +69,8 @@ public class MessageList extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(getBaseContext(), ComposeActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -118,7 +113,7 @@ public class MessageList extends AppCompatActivity {
     }
 
     private void setupMessageList() {
-        if(ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             ListView messageList = (ListView) findViewById(R.id.message_list);
             messages = SmsService.getConversations(this.getContentResolver());
@@ -145,9 +140,11 @@ public class MessageList extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        timer.cancel();
-        timer.purge();
-        timer = null;
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
     }
 
     @Override
@@ -186,6 +183,8 @@ public class MessageList extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(getBaseContext(), SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
