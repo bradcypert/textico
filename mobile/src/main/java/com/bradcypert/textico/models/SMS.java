@@ -11,7 +11,7 @@ abstract class SMSTrait {
     protected Date timestamp;
     protected boolean read;
     protected int id;
-    protected int threadId;
+    protected String threadId;
     protected String person;
     protected boolean sentByMe;
 }
@@ -19,6 +19,7 @@ abstract class SMSTrait {
 public class SMS extends SMSTrait implements Comparable<SMS> {
     private final String DIGIT_REGEX = "\\d+";
     private final String US_ISO = "US";
+    private boolean isArchived = false;
 
     public static class SMSBuilder extends SMSTrait {
         private final String UNREAD = "0";
@@ -46,7 +47,7 @@ public class SMS extends SMSTrait implements Comparable<SMS> {
             return this;
         }
 
-        public SMSBuilder setThreadId(int threadId) {
+        public SMSBuilder setThreadId(String threadId) {
             this.threadId = threadId;
             return this;
         }
@@ -70,13 +71,13 @@ public class SMS extends SMSTrait implements Comparable<SMS> {
             if(this.number == null || this.body == null || this.timestamp == null) {
                 throw new Exception("Required fields for builder not met: Number, Body, Timestamp");
             } else {
-                return new SMS(number, body, timestamp, id, read, person, sentByMe);
+                return new SMS(number, body, timestamp, id, read, person, sentByMe, threadId);
             }
         }
     }
 
-    private SMS(String number, String body, Date timestamp, int id, boolean read, String sender, boolean sentByMe) {
-        if(number.matches(DIGIT_REGEX)) {
+    private SMS(String number, String body, Date timestamp, int id, boolean read, String sender, boolean sentByMe, String threadId) {
+        if (number.matches(DIGIT_REGEX)) {
             this.number = PhoneNumberUtils.formatNumber(number, US_ISO);
         } else {
             this.number = number;
@@ -87,6 +88,7 @@ public class SMS extends SMSTrait implements Comparable<SMS> {
         this.read = read;
         this.person = sender;
         this.sentByMe = sentByMe;
+        this.threadId = threadId;
     }
 
     public String getNumber() {
@@ -105,7 +107,7 @@ public class SMS extends SMSTrait implements Comparable<SMS> {
         return this.id;
     }
 
-    public int getThreadId() {
+    public String getThreadId() {
         return this.threadId;
     }
 

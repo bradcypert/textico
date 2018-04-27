@@ -21,6 +21,7 @@
             android:name=".MessageList"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
+            <meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="com.bradcypert.updateData" />
@@ -58,6 +59,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".SettingsActivity" />
+        <activity android:name=".SearchResultsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
 
         <!-- Service that delivers messages from the phone "quick response" -->
         <service android:name=".services.HeadlessSmsSendService"

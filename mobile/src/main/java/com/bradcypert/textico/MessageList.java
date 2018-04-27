@@ -1,5 +1,6 @@
 package com.bradcypert.textico;
 
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,21 +8,24 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 
 import com.bradcypert.textico.adapters.MessageListAdapter;
+import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
+import com.bradcypert.textico.services.ContactsService;
 import com.bradcypert.textico.services.SmsService;
 
 import java.util.ArrayList;
@@ -83,7 +87,7 @@ public class MessageList extends AppCompatActivity {
 
     private void setupMessageFilters() {
         Spinner filterSpinner = (Spinner) findViewById(R.id.filter_spinner);
-        ArrayAdapter filters = ArrayAdapter.createFromResource(this,
+        ArrayAdapter<CharSequence> filters = ArrayAdapter.createFromResource(this,
                 R.array.filter_options, R.layout.filter_option);
 
         filters.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -171,6 +175,38 @@ public class MessageList extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_message_list, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                if (query.equals("")) {
+                    setupMessageList();
+                } else {
+                    System.out.println(query);
+                    ArrayList<SMS> filtered = new ArrayList<>();
+                    for (SMS message: messages) {
+                        Contact contact = ContactsService.getContactForNumber(getContentResolver(), message.getNumber());
+                        if (message.getNumber().contains(query)
+                            || (contact.getName() != null && contact.getName().toLowerCase().contains(query.toLowerCase()))) {
+                            filtered.add(message);
+                        }
+                    }
+                    adapter.clear();
+                    adapter.addAll(filtered);
+                    adapter.notifyDataSetChanged();
+                }
+                return true;
+            }
+        });
         return true;
     }
 

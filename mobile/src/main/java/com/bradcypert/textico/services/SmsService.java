@@ -42,7 +42,10 @@ public class SmsService {
 
         while(!inboxCursor.isAfterLast()) {
             try {
-                messages.add(buildSmsFromCursor(inboxCursor));
+                SMS message = buildSmsFromCursor(inboxCursor);
+                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
+                    messages.add(message);
+                }
             } catch (Exception e) {}
 
             inboxCursor.moveToNext();
@@ -62,7 +65,10 @@ public class SmsService {
 
         while(!inboxCursor.isAfterLast()) {
             try {
-                messages.add(buildSmsFromCursor(inboxCursor));
+                SMS message = buildSmsFromCursor(inboxCursor);
+                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
+                    messages.add(message);
+                }
             } catch (Exception e) {}
 
             inboxCursor.moveToNext();
@@ -95,20 +101,20 @@ public class SmsService {
     }
 
     private static SMS buildSmsFromCursor(Cursor c) throws Exception {
-        long date = Long.parseLong(c.getString(c.getColumnIndex("date")));
+        long date = Long.parseLong(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.DATE)));
         if (date == 0) {
-            date = Long.parseLong(c.getString(c.getColumnIndex("date_sent")));
+            date = Long.parseLong(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.DATE_SENT)));
         }
 
         return new SMS.SMSBuilder()
-                .setNumber(c.getString(c.getColumnIndex("address")))
-                .setBody(c.getString(c.getColumnIndex("body")))
+                .setNumber(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.ADDRESS)))
+                .setBody(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.BODY)))
                 .setTimestamp(new Date(date))
                 .setId(c.getInt(c.getColumnIndex(Telephony.BaseMmsColumns._ID)))
-                .setThreadId(c.getInt(c.getColumnIndex("thread_id")))
-                .setRead(c.getString(c.getColumnIndex("read")))
-                .setPerson(c.getString(c.getColumnIndex("person")))
-                .setSentByMe(c.getString(c.getColumnIndex("date_sent")).equals("0"))
+                .setThreadId(c.getString(c.getColumnIndex(Telephony.BaseMmsColumns.THREAD_ID)))
+                .setRead(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.READ)))
+                .setPerson(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.PERSON)))
+                .setSentByMe(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.DATE_SENT)).equals("0"))
                 .build();
     }
 }
