@@ -2,6 +2,7 @@
     <string name="app_name">Textico</string>
 
     <string name="hello">Hello World!</string>
-    <string name="title">Hello Notification!</string>
+    <string name="title">New message from Brad.</string>
     <string name="notification_posted">Notification posted</string>
+    <string name="new_message">New Message</string>
 </resources>

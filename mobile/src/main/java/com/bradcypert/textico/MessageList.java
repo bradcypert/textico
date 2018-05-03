@@ -11,6 +11,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -25,6 +27,7 @@ import android.widget.Spinner;
 import com.bradcypert.textico.adapters.MessageListAdapter;
 import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
+import com.bradcypert.textico.recycler.item.decorators.VerticalSpaceItemDecorator;
 import com.bradcypert.textico.services.ContactsService;
 import com.bradcypert.textico.services.SmsService;
 
@@ -96,7 +99,7 @@ public class MessageList extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String filterValue = (String) parent.getItemAtPosition(position);
-                ListView messageList = (ListView) findViewById(R.id.message_list);
+                RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
                 ArrayList<SMS> messages;
 
                 if (filterValue.equals("Unread")) {
@@ -107,8 +110,12 @@ public class MessageList extends AppCompatActivity {
                     filter = Filter.all;
                 }
 
-                adapter = new MessageListAdapter(getBaseContext(), messages);
+                adapter = new MessageListAdapter(getBaseContext(), R.layout.message_list_adapter_view, messages);
+                messageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
                 messageList.setAdapter(adapter);
+                int verticalSpacing = 5;
+                VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(verticalSpacing);
+                messageList.addItemDecoration(itemDecorator);
             }
 
             @Override
@@ -119,18 +126,14 @@ public class MessageList extends AppCompatActivity {
     private void setupMessageList() {
         if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            ListView messageList = (ListView) findViewById(R.id.message_list);
+            RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
             messages = SmsService.getConversations(this.getContentResolver());
-            adapter = new MessageListAdapter(this, messages);
+            adapter = new MessageListAdapter(this, R.layout.message_list_adapter_view, messages);
+            messageList.setLayoutManager(new LinearLayoutManager(this));
             messageList.setAdapter(adapter);
-            messageList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent intent = new Intent(getBaseContext(), ConversationDetails.class);
-                    intent.putExtra(ConversationDetails.KEY, messages.get(position).getNumber());
-                    startActivity(intent);
-                }
-            });
+            int verticalSpacing = 5;
+            VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(verticalSpacing);
+            messageList.addItemDecoration(itemDecorator);
         } else {
             ActivityCompat.requestPermissions(
                     MessageList.this,
@@ -200,8 +203,8 @@ public class MessageList extends AppCompatActivity {
                             filtered.add(message);
                         }
                     }
-                    adapter.clear();
-                    adapter.addAll(filtered);
+//                    adapter.clear();
+//                    adapter.addAll(filtered);
                     adapter.notifyDataSetChanged();
                 }
                 return true;

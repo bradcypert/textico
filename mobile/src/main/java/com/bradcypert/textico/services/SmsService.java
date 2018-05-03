@@ -43,9 +43,9 @@ public class SmsService {
         while(!inboxCursor.isAfterLast()) {
             try {
                 SMS message = buildSmsFromCursor(inboxCursor);
-                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
+//                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
                     messages.add(message);
-                }
+//                }
             } catch (Exception e) {}
 
             inboxCursor.moveToNext();
@@ -66,9 +66,9 @@ public class SmsService {
         while(!inboxCursor.isAfterLast()) {
             try {
                 SMS message = buildSmsFromCursor(inboxCursor);
-                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
+//                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
                     messages.add(message);
-                }
+//                }
             } catch (Exception e) {}
 
             inboxCursor.moveToNext();
