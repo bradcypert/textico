@@ -14,7 +14,8 @@
         android:layout_height="75dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:src="@mipmap/empty_portait" />
+        android:src="@mipmap/empty_portait"
+        android:transitionName="contact_portrait"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +31,8 @@
             android:layout_marginStart="5dp"
             android:layout_marginTop="10dp"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="16sp"
+            android:transitionName="contact_address"/>
         <TextView
             android:id="@+id/message_body"
             android:layout_width="match_parent"

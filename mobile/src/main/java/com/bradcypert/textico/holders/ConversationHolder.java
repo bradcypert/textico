@@ -1,5 +1,6 @@
 package com.bradcypert.textico.holders;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -26,6 +27,7 @@ public class ConversationHolder extends RecyclerView.ViewHolder implements View.
     public TextView timestampView;
     public ImageView contactImage;
 
+    private Activity hostActivity;
     public Contact contact;
     public SMS message;
 
@@ -42,7 +44,7 @@ public class ConversationHolder extends RecyclerView.ViewHolder implements View.
         itemView.setOnClickListener(this);
     }
 
-    public void bindSMS(SMS message) {
+    public void bindSMS(SMS message, Activity host) {
         this.contact = ContactsService.getContactForNumber(this.context.getContentResolver(), message.getNumber());
         this.message = message;
 
@@ -59,6 +61,8 @@ public class ConversationHolder extends RecyclerView.ViewHolder implements View.
         }
 
         this.bodyView.setText(message.getBody());
+
+        this.hostActivity = host;
 
         SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mma", Locale.getDefault());
         String timestamp = message.getTimestamp() == null ? "" : df.format(message.getTimestamp());

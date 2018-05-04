@@ -1,5 +1,6 @@
 package com.bradcypert.textico.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,17 +24,20 @@ public class MessageListAdapter extends RecyclerView.Adapter<ConversationHolder>
     private final ArrayList<SMS> rootMessages;
     private final HashMap<String, Contact> contactsByNumber = new HashMap<>();
     private Context context;
+    private Activity host;
     private int itemResource;
 
-    public MessageListAdapter(Context context, int itemResource, ArrayList<SMS> messageList) {
+    public MessageListAdapter(Context context, int itemResource, ArrayList<SMS> messageList, Activity activity) {
         super();
         this.messages = messageList;
         this.rootMessages = new ArrayList<>(messageList);
         for (SMS message: this.rootMessages) {
             contactsByNumber.put(message.getNumber(), ContactsService.getContactForNumber(context.getContentResolver(), message.getNumber()));
         }
+
         this.context = context;
         this.itemResource = itemResource;
+        this.host = activity;
     }
 
     @Override
@@ -48,7 +52,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<ConversationHolder>
     @Override
     public void onBindViewHolder(ConversationHolder holder, int position) {
         SMS message = this.messages.get(position);
-        holder.bindSMS(message);
+        holder.bindSMS(message, this.host);
     }
 
     @Override
@@ -70,7 +74,6 @@ public class MessageListAdapter extends RecyclerView.Adapter<ConversationHolder>
         } else {
             ArrayList<SMS> filtered = new ArrayList<>();
             for (SMS message: rootMessages) {
-                // TODO: Optimize this?
                 Contact contact = contactsByNumber.get(message.getNumber());
                 if (message.getNumber().contains(query)
                         || (contact.getName() != null && contact.getName().toLowerCase().contains(query.toLowerCase()))) {

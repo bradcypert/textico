@@ -1,5 +1,7 @@
 package com.bradcypert.textico;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,10 +19,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.transition.Explode;
+import android.transition.Slide;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -75,14 +81,20 @@ public class MessageList extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getWindow().setExitTransition(new Slide(Gravity.START));
+        getWindow().setEnterTransition(new Slide(Gravity.START));
+        getWindow().setSharedElementEnterTransition(new Slide(Gravity.START));
+        getWindow().setSharedElementExitTransition(new Slide(Gravity.START));
+
         setupMessageFilters();
         setupMessageList();
+        final Activity a = this;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getBaseContext(), ComposeActivity.class);
-                startActivity(intent);
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(a).toBundle());
             }
         });
     }
@@ -125,7 +137,7 @@ public class MessageList extends AppCompatActivity {
     private void refreshMessageList(ArrayList<SMS> messages) {
         final RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
         final ArrayList<SMS> messages1 = messages;
-        adapter = new MessageListAdapter(getBaseContext(), R.layout.message_list_adapter_view, messages);
+        adapter = new MessageListAdapter(getBaseContext(), R.layout.message_list_adapter_view, messages, this);
         messageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         messageList.setAdapter(adapter);
         int verticalSpacing = 5;
@@ -233,7 +245,7 @@ public class MessageList extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(getBaseContext(), SettingsActivity.class);
-            startActivity(intent);
+            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
             return true;
         }
 

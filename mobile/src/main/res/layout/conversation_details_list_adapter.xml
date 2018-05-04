@@ -13,7 +13,8 @@
         android:id="@+id/contact_details_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@mipmap/empty_portait" />
+        android:src="@mipmap/empty_portait"
+        android:transitionName="contact_portrait"/>
 
     <RelativeLayout
         android:id="@+id/message_container"

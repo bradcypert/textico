@@ -30,6 +30,9 @@ import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
 import com.bradcypert.textico.services.ContactsService;
 import com.bradcypert.textico.services.SmsService;
+import com.klinker.android.send_message.Message;
+import com.klinker.android.send_message.Settings;
+import com.klinker.android.send_message.Transaction;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -139,11 +142,23 @@ public class ConversationDetails extends AppCompatActivity {
         }
     }
 
-    private void sendSMS(String text) {
+    private void sendSMS(final String text) {
         final EditText sendText = (EditText) findViewById(R.id.send_text);
-        if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-            smsManager.sendTextMessage(getKeyFromIntent(false), null, text, null, null);
-            sendText.setText("");
+        if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Settings sendSettings = new Settings();
+                    sendSettings.setSendLongAsMms(true);
+                    Transaction sendTransaction = new Transaction(getBaseContext(), sendSettings);
+                    Message mMessage = new Message(text, getKeyFromIntent(true));
+                    sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID);
+                    sendText.setText("");
+                }
+            }).run();
+
             try {
                 timer.cancel();
                 timer.purge();
@@ -155,15 +170,67 @@ public class ConversationDetails extends AppCompatActivity {
         } else {
             ActivityCompat.requestPermissions(
                     ConversationDetails.this,
-                    new String[]{android.Manifest.permission.READ_PHONE_STATE},
+                    new String[]{Manifest.permission.READ_SMS,
+                            Manifest.permission.SEND_SMS,
+                            Manifest.permission.RECEIVE_SMS,
+                            Manifest.permission.RECEIVE_MMS,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_PHONE_STATE,
+                            Manifest.permission.CHANGE_NETWORK_STATE},
                     REQUEST_CODE_ASK_PERMISSIONS
             );
             setupSendButton();
         }
     }
 
-    private void sendMMS(String text) {
-//        smsManager.sendMultimediaMessage(getBaseContext(), );
+    private void sendMMS(final String text) {
+        final EditText sendText = (EditText) findViewById(R.id.send_text);
+        if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Settings sendSettings = new Settings();
+                    sendSettings.setSendLongAsMms(true);
+                    sendSettings.setUseSystemSending(true);
+                    Transaction sendTransaction = new Transaction(getBaseContext(), sendSettings);
+                    Message mMessage = new Message(text, getKeyFromIntent(true));
+                    mMessage.setImage(externalImage);
+                    sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID);
+                    sendText.setText("");
+                    final ImageView imgv = (ImageView) findViewById(R.id.mmsImage);
+                    imgv.setImageBitmap(null);
+                    imgv.setVisibility(View.INVISIBLE);
+                    externalImage = null;
+                    final ImageButton btn = (ImageButton) findViewById(R.id.remove_image_button);
+                    btn.setVisibility(View.INVISIBLE);
+                }
+            }).run();
+
+
+            try {
+                timer.cancel();
+                timer.purge();
+                timer = null;
+                setupWatcher();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                    ConversationDetails.this,
+                    new String[]{Manifest.permission.READ_SMS,
+                            Manifest.permission.SEND_SMS,
+                            Manifest.permission.RECEIVE_SMS,
+                            Manifest.permission.RECEIVE_MMS,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_PHONE_STATE,
+                            Manifest.permission.CHANGE_NETWORK_STATE},
+                    REQUEST_CODE_ASK_PERMISSIONS
+            );
+            setupSendButton();
+        }
     }
 
     private void setupSendButton() {
