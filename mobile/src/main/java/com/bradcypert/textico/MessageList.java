@@ -28,6 +28,7 @@ import android.widget.SearchView;
 import android.widget.Spinner;
 
 import com.bradcypert.textico.adapters.MessageListAdapter;
+import com.bradcypert.textico.adapters.SearchAndRemove;
 import com.bradcypert.textico.itemtouch.callbacks.SwipeToDeleteCallback;
 import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
@@ -122,7 +123,8 @@ public class MessageList extends AppCompatActivity {
     }
 
     private void refreshMessageList(ArrayList<SMS> messages) {
-        RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
+        final RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
+        final ArrayList<SMS> messages1 = messages;
         adapter = new MessageListAdapter(getBaseContext(), R.layout.message_list_adapter_view, messages);
         messageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         messageList.setAdapter(adapter);
@@ -131,7 +133,22 @@ public class MessageList extends AppCompatActivity {
         VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(verticalSpacing);
         messageList.addItemDecoration(itemDecorator);
 
-        SwipeToDeleteCallback swipe = new SwipeToDeleteCallback(messageList);
+        SwipeToDeleteCallback swipe = new SwipeToDeleteCallback(messageList) {
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                // Row is swiped from recycler view
+                // remove it from adapter
+                int pos = viewHolder.getAdapterPosition();
+                if (pos > -1) {
+                    try {
+                        SmsService.deleteThreadById(getContentResolver(), messages1.get(viewHolder.getAdapterPosition()).getThreadId());
+                        ((SearchAndRemove) messageList.getAdapter()).removeItem(pos);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipe);
         itemTouchHelper.attachToRecyclerView(messageList);

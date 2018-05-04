@@ -46,7 +46,9 @@ public class SmsService {
 //                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
                     messages.add(message);
 //                }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             inboxCursor.moveToNext();
         }
@@ -116,5 +118,10 @@ public class SmsService {
                 .setPerson(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.PERSON)))
                 .setSentByMe(c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.DATE_SENT)).equals("0"))
                 .build();
+    }
+
+    public static void deleteThreadById(ContentResolver contentResolver, String threadId) {
+        contentResolver.delete(Uri.parse(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI.toString() + "/" + threadId), null, null);
+
     }
 }

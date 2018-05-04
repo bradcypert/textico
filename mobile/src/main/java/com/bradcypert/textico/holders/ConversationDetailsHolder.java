@@ -42,7 +42,7 @@ public class ConversationDetailsHolder extends RecyclerView.ViewHolder implement
     }
 
     public void bindSMS(SMS message, boolean showImage, Contact contact) {
-        this.contact = ContactsService.getContactForNumber(this.context.getContentResolver(), message.getNumber());
+        this.contact = contact;
         this.message = message;
 
         this.messageBody.setText(message.getBody());

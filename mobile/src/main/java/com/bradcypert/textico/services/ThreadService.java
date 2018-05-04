@@ -13,7 +13,7 @@ import com.bradcypert.textico.models.Contact;
 public class ThreadService {
 
     private static Cursor getCursorForId(ContentResolver contentResolver, String id) {
-        return contentResolver.query(Telephony.Threads.CONTENT_URI, null, "_id = " + id, null, null);
+        return contentResolver.query(Telephony.Threads.CONTENT_URI, null, "_id = " + id + " AND archived=0", null, null);
     }
 
     public static boolean isThreadActive(ContentResolver contentResolver, String id) {
