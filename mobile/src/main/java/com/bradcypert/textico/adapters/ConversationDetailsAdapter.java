@@ -1,52 +1,60 @@
 package com.bradcypert.textico.adapters;
 
 import android.content.Context;
-import android.support.v4.view.GravityCompat;
-import android.view.Gravity;
+import android.net.Uri;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bradcypert.textico.R;
+import com.bradcypert.textico.holders.ConversationDetailsHolder;
+import com.bradcypert.textico.holders.ConversationHolder;
+import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
+import com.bradcypert.textico.services.ContactsService;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
-public class ConversationDetailsAdapter extends ArrayAdapter {
-    public ConversationDetailsAdapter(Context context, ArrayList messageList) {
-        super(context, 0, messageList);
+/**
+ * Created by bradc on 3/11/2017.
+ */
+
+public class ConversationDetailsAdapter extends RecyclerView.Adapter<ConversationDetailsHolder> {
+    private final ArrayList<SMS> messages;
+    private Context context;
+    private int itemResource;
+
+    public ConversationDetailsAdapter(Context context, int itemResource, ArrayList<SMS> messageList) {
+        super();
+        this.messages = messageList;
+        this.context = context;
+        this.itemResource = itemResource;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        SMS message = (SMS) getItem(position);
-        // Check if an existing view is being reused, otherwise inflate the view
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.conversation_details_list_adapter, parent, false);
-        }
+    public ConversationDetailsHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // 3. Inflate the view and return the new ViewHolder
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(this.itemResource, parent, false);
+        return new ConversationDetailsHolder(this.context, view);
+    }
 
-        TextView bodyView = (TextView) convertView.findViewById(R.id.message_body);
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) bodyView.getLayoutParams();
-        if (message != null) {
-            if (message.isSentByMe()) {
-                bodyView.setBackgroundResource(R.drawable.chat_bubble_mine);
-                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                params.setMarginEnd(0);
-                params.setMarginStart(120);
-            } else {
-                bodyView.setBackgroundResource(R.drawable.chat_bubble);
-                params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                params.setMarginStart(0);
-                params.setMarginEnd(120);
-            }
-            bodyView.setLayoutParams(params);
-            bodyView.setText(message.getBody());
-        }
-        return convertView;
+    // 4. Override the onBindViewHolder method
+    @Override
+    public void onBindViewHolder(ConversationDetailsHolder holder, int position) {
+        SMS message = this.messages.get(position);
+        holder.bindSMS(message);
+    }
+
+    @Override
+    public int getItemCount() {
+        return this.messages.size();
     }
 }

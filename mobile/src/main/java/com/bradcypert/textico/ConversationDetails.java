@@ -10,6 +10,8 @@ import android.provider.Telephony;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.EditText;
@@ -171,10 +173,11 @@ public class ConversationDetails extends AppCompatActivity {
         } else {
             setTitle(getKeyFromIntent(false));
         }
-        ListView messageList = (ListView) findViewById(R.id.listView);
-        adapter = new ConversationDetailsAdapter(this, messages);
+        RecyclerView messageList = (RecyclerView) findViewById(R.id.listView);
+        adapter = new ConversationDetailsAdapter(this, R.layout.conversation_details_list_adapter, messages);
         messageList.setAdapter(adapter);
-        messageList.scrollTo(messageList.getBottom(), messageList.getBottom());
+        messageList.setLayoutManager(new LinearLayoutManager(this));
+        messageList.scrollToPosition(messages.size() - 1);
     }
 
     private String getKeyFromIntent(boolean filter) {

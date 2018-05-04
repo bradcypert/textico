@@ -99,7 +99,6 @@ public class MessageList extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String filterValue = (String) parent.getItemAtPosition(position);
-                RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
                 ArrayList<SMS> messages;
 
                 if (filterValue.equals("Unread")) {
@@ -110,12 +109,7 @@ public class MessageList extends AppCompatActivity {
                     filter = Filter.all;
                 }
 
-                adapter = new MessageListAdapter(getBaseContext(), R.layout.message_list_adapter_view, messages);
-                messageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
-                messageList.setAdapter(adapter);
-                int verticalSpacing = 5;
-                VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(verticalSpacing);
-                messageList.addItemDecoration(itemDecorator);
+                refreshMessageList(messages);
             }
 
             @Override
@@ -123,17 +117,21 @@ public class MessageList extends AppCompatActivity {
         });
     }
 
+    private void refreshMessageList(ArrayList<SMS> messages) {
+        RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
+        adapter = new MessageListAdapter(getBaseContext(), R.layout.message_list_adapter_view, messages);
+        messageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+        messageList.setAdapter(adapter);
+        int verticalSpacing = 5;
+        VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(verticalSpacing);
+        messageList.addItemDecoration(itemDecorator);
+    }
+
     private void setupMessageList() {
         if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
             messages = SmsService.getConversations(this.getContentResolver());
-            adapter = new MessageListAdapter(this, R.layout.message_list_adapter_view, messages);
-            messageList.setLayoutManager(new LinearLayoutManager(this));
-            messageList.setAdapter(adapter);
-            int verticalSpacing = 5;
-            VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(verticalSpacing);
-            messageList.addItemDecoration(itemDecorator);
+            refreshMessageList(messages);
         } else {
             ActivityCompat.requestPermissions(
                     MessageList.this,
