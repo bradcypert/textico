@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -14,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +28,7 @@ import android.widget.SearchView;
 import android.widget.Spinner;
 
 import com.bradcypert.textico.adapters.MessageListAdapter;
+import com.bradcypert.textico.itemtouch.callbacks.SwipeToDeleteCallback;
 import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
 import com.bradcypert.textico.recycler.item.decorators.VerticalSpaceItemDecorator;
@@ -123,8 +127,14 @@ public class MessageList extends AppCompatActivity {
         messageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
         messageList.setAdapter(adapter);
         int verticalSpacing = 5;
+
         VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(verticalSpacing);
         messageList.addItemDecoration(itemDecorator);
+
+        SwipeToDeleteCallback swipe = new SwipeToDeleteCallback(messageList);
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipe);
+        itemTouchHelper.attachToRecyclerView(messageList);
     }
 
     private void setupMessageList() {
