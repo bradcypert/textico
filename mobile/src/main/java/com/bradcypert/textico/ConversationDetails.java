@@ -1,7 +1,12 @@
 package com.bradcypert.textico;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,6 +38,8 @@ import java.util.TimerTask;
 
 public class ConversationDetails extends AppCompatActivity {
     public static final String KEY="id";
+    private String SMS_SENT = "SMS_SENT";
+    private String SMS_DELIVERED = "SMS_DELIVERED";
     private final SmsManager smsManager = SmsManager.getDefault();
     private final static int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private ArrayList<SMS> messages;
@@ -132,6 +139,33 @@ public class ConversationDetails extends AppCompatActivity {
         }
     }
 
+    private void sendSMS(String text) {
+        final EditText sendText = (EditText) findViewById(R.id.send_text);
+        if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            smsManager.sendTextMessage(getKeyFromIntent(false), null, text, null, null);
+            sendText.setText("");
+            try {
+                timer.cancel();
+                timer.purge();
+                timer = null;
+                setupWatcher();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                    ConversationDetails.this,
+                    new String[]{android.Manifest.permission.READ_PHONE_STATE},
+                    REQUEST_CODE_ASK_PERMISSIONS
+            );
+            setupSendButton();
+        }
+    }
+
+    private void sendMMS(String text) {
+//        smsManager.sendMultimediaMessage(getBaseContext(), );
+    }
+
     private void setupSendButton() {
         ImageButton sendButton = (ImageButton) findViewById(R.id.send_button);
         final EditText sendText = (EditText) findViewById(R.id.send_text);
@@ -139,27 +173,10 @@ public class ConversationDetails extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String value = sendText.getText().toString();
-                if (!value.equals("")) {
-                    if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                        smsManager.sendTextMessage(getKeyFromIntent(false), null, value, null, null);
-                        sendText.setText("");
-                        try {
-                            timer.cancel();
-                            timer.purge();
-                            timer = null;
-                            setupWatcher();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        ActivityCompat.requestPermissions(
-                                ConversationDetails.this,
-                                new String[]{android.Manifest.permission.READ_PHONE_STATE},
-                                REQUEST_CODE_ASK_PERMISSIONS
-                        );
-                        setupMessageList();
-                    }
-
+                if (externalImage != null) {
+                    sendMMS(value);
+                } else if (!value.equals("")) {
+                    sendSMS(value);
                 };
             }
         });

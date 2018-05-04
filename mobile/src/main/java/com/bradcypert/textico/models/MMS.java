@@ -5,66 +5,67 @@ import android.telephony.PhoneNumberUtils;
 
 import java.util.Date;
 
-public class SMS extends Message implements Comparable<SMS> {
+public class MMS extends Message implements Comparable<MMS> {
     private final String DIGIT_REGEX = "\\d+";
     private final String US_ISO = "US";
 
-    public static class SMSBuilder extends MessageProperties {
+
+    public static class MMSBuilder extends MessageProperties {
         private final String UNREAD = "0";
         private final String READ = "1";
 
-        public SMSBuilder() {}
+        public MMSBuilder() {}
 
-        public SMSBuilder setNumber(String number) {
+        public MMSBuilder setNumber(String number) {
             this.number = number;
             return this;
         }
 
-        public SMSBuilder setBody(String body) {
+        public MMSBuilder setBody(String body) {
             this.body = body;
             return this;
         }
 
-        public SMSBuilder setTimestamp(Date timestamp) {
+        public MMSBuilder setTimestamp(Date timestamp) {
             this.timestamp = timestamp;
             return this;
         }
 
-        public SMSBuilder setId(int id) {
+        public MMSBuilder setId(int id) {
             this.id = id;
             return this;
         }
 
-        public SMSBuilder setThreadId(String threadId) {
+        public MMSBuilder setThreadId(String threadId) {
             this.threadId = threadId;
             return this;
         }
 
-        public SMSBuilder setRead(String read) {
+        public MMSBuilder setRead(String read) {
             this.read = read.equals(READ);
             return this;
         }
 
-        public SMSBuilder setPerson(String person) {
+        public MMSBuilder setPerson(String person) {
             this.person = person;
             return this;
         }
 
-        public SMSBuilder setSentByMe(boolean sentByMe) {
+        public MMSBuilder setSentByMe(boolean sentByMe) {
             this.sentByMe = sentByMe;
             return this;
         }
 
-        public SMS build() throws Exception {
+        public MMS build() throws Exception {
             if(this.number == null || this.body == null || this.timestamp == null) {
                 throw new Exception("Required fields for builder not met: Number, Body, Timestamp");
             } else {
-                return new SMS(number, body, timestamp, id, read, person, sentByMe, threadId);
+                return new MMS(number, body, timestamp, id, read, person, sentByMe, threadId);
             }
         }
     }
 
-    private SMS(String number, String body, Date timestamp, int id, boolean read, String sender, boolean sentByMe, String threadId) {
+    private MMS(String number, String body, Date timestamp, int id, boolean read, String sender, boolean sentByMe, String threadId) {
         if (number.matches(DIGIT_REGEX)) {
             this.number = PhoneNumberUtils.formatNumber(number, US_ISO);
         } else {
@@ -80,7 +81,7 @@ public class SMS extends Message implements Comparable<SMS> {
     }
 
     @Override
-    public int compareTo(@NonNull SMS o) {
+    public int compareTo(@NonNull MMS o) {
         if(this.timestamp == null || o.getTimestamp() == null) {
             return 0;
         }

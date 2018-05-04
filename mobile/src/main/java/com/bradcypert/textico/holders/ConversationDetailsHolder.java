@@ -24,6 +24,7 @@ public class ConversationDetailsHolder extends RecyclerView.ViewHolder implement
 
     private RelativeLayout messageContainer;
     private TextView messageBody;
+    private ImageView contactImage;
 
     public Contact contact;
     private SMS message;
@@ -35,15 +36,20 @@ public class ConversationDetailsHolder extends RecyclerView.ViewHolder implement
 
         this.messageContainer = (RelativeLayout) itemView.findViewById(R.id.message_container);
         this.messageBody = (TextView) itemView.findViewById(R.id.message_body);
+        this.contactImage = (ImageView) itemView.findViewById(R.id.contact_details_image);
 
         itemView.setOnClickListener(this);
     }
 
-    public void bindSMS(SMS message) {
+    public void bindSMS(SMS message, boolean showImage, Contact contact) {
         this.contact = ContactsService.getContactForNumber(this.context.getContentResolver(), message.getNumber());
         this.message = message;
 
         this.messageBody.setText(message.getBody());
+        this.contactImage.setImageDrawable(null);
+        this.contactImage.setImageURI(null);
+        this.contactImage.setAlpha(0);
+        this.contactImage.setImageAlpha(0);
 
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.messageBody.getLayoutParams();
         if (message.isSentByMe()) {
@@ -56,6 +62,16 @@ public class ConversationDetailsHolder extends RecyclerView.ViewHolder implement
             params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             params.setMarginStart(0);
             params.setMarginEnd(120);
+
+            if (showImage) {
+                if (this.contact.getPicUri() != null && !this.contact.getPicUri().equals("")) {
+                    this.contactImage.setImageURI(Uri.parse(this.contact.getPicUri()));
+                } else {
+                    this.contactImage.setImageResource(R.mipmap.empty_portait);
+                }
+                this.contactImage.setAlpha(255);
+                this.contactImage.setImageAlpha(255);
+            }
         }
         this.messageBody.setLayoutParams(params);
         this.messageBody.setText(message.getBody());

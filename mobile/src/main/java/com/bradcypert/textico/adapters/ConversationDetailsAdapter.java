@@ -7,9 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bradcypert.textico.holders.ConversationDetailsHolder;
+import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
+import com.bradcypert.textico.services.ContactsService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by bradc on 3/11/2017.
@@ -19,12 +22,17 @@ public class ConversationDetailsAdapter extends RecyclerView.Adapter<Conversatio
     private final ArrayList<SMS> messages;
     private Context context;
     private int itemResource;
+    private final HashMap<String, Contact> contactsByNumber = new HashMap<>();
 
     public ConversationDetailsAdapter(Context context, int itemResource, ArrayList<SMS> messageList) {
         super();
         this.messages = messageList;
         this.context = context;
         this.itemResource = itemResource;
+
+        for (SMS message: this.messages) {
+            contactsByNumber.put(message.getNumber(), ContactsService.getContactForNumber(context.getContentResolver(), message.getNumber()));
+        }
     }
 
     @Override
@@ -39,7 +47,22 @@ public class ConversationDetailsAdapter extends RecyclerView.Adapter<Conversatio
     @Override
     public void onBindViewHolder(ConversationDetailsHolder holder, int position) {
         SMS message = this.messages.get(position);
-        holder.bindSMS(message);
+        SMS after = null;
+        boolean showImage = false;
+
+        try {
+            after = this.messages.get(position + 1);
+        } catch (Exception e) {
+            showImage = true;
+        }
+
+        if (after == null) {
+            showImage = true;
+        } else if (!message.isSentByMe() && message.getSenderId() != null && !message.getSenderId().equals(after.getSenderId())) {
+            showImage = true;
+        }
+
+        holder.bindSMS(message, showImage, contactsByNumber.get(message.getNumber()));
     }
 
     @Override

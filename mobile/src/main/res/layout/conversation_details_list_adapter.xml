@@ -1,20 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/message_container"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/list_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingBottom="2dp"
-    android:paddingLeft="25dp"
-    android:paddingRight="25dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
     android:paddingTop="2dp">
 
-    <TextView
-        android:id="@+id/message_body"
-        android:layout_width="wrap_content"
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/contact_details_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@mipmap/empty_portait" />
+
+    <RelativeLayout
+        android:id="@+id/message_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autoLink="web|email|phone|map|all"
-        android:background="@drawable/chat_bubble"
-        android:padding="8dp"
-        android:textColorLink="@color/linkBlue"
-        android:textColor="@android:color/white" />
+        android:layout_marginStart="35dp"
+        android:paddingBottom="2dp"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:paddingTop="2dp">
+
+        <TextView
+            android:id="@+id/message_body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoLink="web|email|phone|map|all"
+            android:background="@drawable/chat_bubble"
+            android:padding="8dp"
+            android:textColorLink="@color/linkBlue"
+            android:textColor="@android:color/white" />
+    </RelativeLayout>
 </RelativeLayout>

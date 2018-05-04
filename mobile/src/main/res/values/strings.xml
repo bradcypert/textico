@@ -8,4 +8,5 @@
     <string name="unable_to_pick_file">Unable to select file. Try again or try a different file.</string>
     <string name="search_title">Search</string>
     <string name="search_hint">Contact name or number</string>
+    <string name="you">You</string>
 </resources>

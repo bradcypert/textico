@@ -8,8 +8,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 
@@ -27,12 +29,27 @@ public class SmsListener extends BroadcastReceiver {
                 String messageBody = smsMessage.getMessageBody();
                 String phoneNumber = smsMessage.getDisplayOriginatingAddress();
                 Contact contact = ContactsService.getContactForNumber(context.getContentResolver(), phoneNumber);
+                Notification.MessagingStyle style = new Notification.MessagingStyle(context.getResources().getString(R.string.you));
+                Bitmap bitmap;
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), Uri.parse(contact.getPicUri()));
+                } catch (Exception e) {
+                    bitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.empty_portait);
+                }
                 long dateTime = smsMessage.getTimestampMillis();
 
                 Notification.Builder mBuilder = new Notification.Builder(context)
                         .setSmallIcon(R.mipmap.empty_portait)
+                        .setLargeIcon(bitmap)
                         .setContentTitle(phoneNumber)
                         .setContentText(messageBody);
+
+                Notification.MessagingStyle.Message message1 = new Notification.MessagingStyle.Message(smsMessage.getMessageBody(),
+                                smsMessage.getTimestampMillis(),
+                                contact.getName() != null ? contact.getName() : phoneNumber);
+
+                style.addMessage(message1);
+
 
                 if (contact.getPicUri() != null) {
                     Icon icon = Icon.createWithContentUri(Uri.parse(contact.getPicUri()));
@@ -42,6 +59,8 @@ public class SmsListener extends BroadcastReceiver {
                 if (contact.getName() != null) {
                     mBuilder.setContentTitle(contact.getName());
                 }
+
+                mBuilder.setStyle(style);
 
                 Intent openIntent = new Intent(context, ConversationDetails.class);
                 openIntent.putExtra(ConversationDetails.KEY, phoneNumber);
