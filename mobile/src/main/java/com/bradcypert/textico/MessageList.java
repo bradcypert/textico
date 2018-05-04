@@ -199,22 +199,7 @@ public class MessageList extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String query) {
-                if (query.equals("")) {
-                    setupMessageList();
-                } else {
-                    System.out.println(query);
-                    ArrayList<SMS> filtered = new ArrayList<>();
-                    for (SMS message: messages) {
-                        Contact contact = ContactsService.getContactForNumber(getContentResolver(), message.getNumber());
-                        if (message.getNumber().contains(query)
-                            || (contact.getName() != null && contact.getName().toLowerCase().contains(query.toLowerCase()))) {
-                            filtered.add(message);
-                        }
-                    }
-//                    adapter.clear();
-//                    adapter.addAll(filtered);
-                    adapter.notifyDataSetChanged();
-                }
+                adapter.search(query);
                 return true;
             }
         });

@@ -9,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
+import com.bradcypert.textico.adapters.SearchAndRemove;
+
 public class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
 
     private Drawable background = new ColorDrawable();
@@ -29,6 +31,7 @@ public class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
         // Row is swiped from recycler view
         // remove it from adapter
+        ((SearchAndRemove) this.recyclerView.getAdapter()).removeItem(viewHolder.getAdapterPosition());
     }
 
     @Override
