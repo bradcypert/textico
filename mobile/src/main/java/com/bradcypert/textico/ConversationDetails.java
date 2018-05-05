@@ -2,16 +2,11 @@ package com.bradcypert.textico;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -22,14 +17,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bradcypert.textico.adapters.ConversationDetailsAdapter;
 import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
 import com.bradcypert.textico.services.ContactsService;
-import com.bradcypert.textico.services.SmsService;
+import com.bradcypert.textico.services.MessageService;
 import com.klinker.android.send_message.Message;
 import com.klinker.android.send_message.Settings;
 import com.klinker.android.send_message.Transaction;
@@ -57,7 +51,7 @@ public class ConversationDetails extends AppCompatActivity {
 
         String key = getKeyFromIntent(true);
         if (key != null) {
-            SmsService.flagMessageAsRead(getContentResolver(), key);
+            MessageService.flagMessageAsRead(getContentResolver(), key);
         }
         setupMessageList();
         setupSendButton();
@@ -80,17 +74,17 @@ public class ConversationDetails extends AppCompatActivity {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ArrayList<SMS> newMessages = SmsService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
-                        if(messages.size() != newMessages.size()) {
-                            messages.clear();
-                            messages.addAll(newMessages);
+                ArrayList<SMS> newMessages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
+                if(messages.size() != newMessages.size()) {
+                    messages.clear();
+                    messages.addAll(newMessages);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
                             adapter.notifyDataSetChanged();
                         }
-                    }
-                });
+                    });
+                }
             }
         }, 250, 1000);
     }
@@ -250,18 +244,24 @@ public class ConversationDetails extends AppCompatActivity {
     }
 
     private void setupMessageList() {
-        messages = SmsService.getConversationDetails(this.getContentResolver(), getKeyFromIntent(true));
-        Contact currentContact = ContactsService.getContactForNumber(this.getContentResolver(), getKeyFromIntent(false));
-        if (currentContact.getName() != null) {
-            setTitle(currentContact.getName());
-        } else {
-            setTitle(getKeyFromIntent(false));
-        }
-        RecyclerView messageList = (RecyclerView) findViewById(R.id.listView);
-        adapter = new ConversationDetailsAdapter(this, R.layout.conversation_details_list_adapter, messages);
-        messageList.setAdapter(adapter);
-        messageList.setLayoutManager(new LinearLayoutManager(this));
-        messageList.scrollToPosition(messages.size() - 1);
+        final Activity activity = this;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                messages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
+                Contact currentContact = ContactsService.getContactForNumber(getContentResolver(), getKeyFromIntent(false));
+                if (currentContact.getName() != null) {
+                    setTitle(currentContact.getName());
+                } else {
+                    setTitle(getKeyFromIntent(false));
+                }
+                RecyclerView messageList = (RecyclerView) findViewById(R.id.listView);
+                adapter = new ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messages);
+                messageList.setAdapter(adapter);
+                messageList.setLayoutManager(new LinearLayoutManager(activity));
+                messageList.scrollToPosition(messages.size() - 1);
+            }
+        }).run();
     }
 
     private String getKeyFromIntent(boolean filter) {

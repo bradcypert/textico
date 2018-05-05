@@ -10,7 +10,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import com.bradcypert.textico.adapters.SearchAndRemove;
-import com.bradcypert.textico.services.SmsService;
 
 public class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
 

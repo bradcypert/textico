@@ -8,8 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -19,28 +17,22 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.transition.Explode;
 import android.transition.Slide;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 
 import com.bradcypert.textico.adapters.MessageListAdapter;
 import com.bradcypert.textico.adapters.SearchAndRemove;
 import com.bradcypert.textico.itemtouch.callbacks.SwipeToDeleteCallback;
-import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
 import com.bradcypert.textico.recycler.item.decorators.VerticalSpaceItemDecorator;
-import com.bradcypert.textico.services.ContactsService;
-import com.bradcypert.textico.services.SmsService;
+import com.bradcypert.textico.services.MessageService;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -59,15 +51,15 @@ public class MessageList extends AppCompatActivity {
     private BroadcastReceiver listener = new BroadcastReceiver(){
       @Override
       public void onReceive(Context context, Intent intent) {
+          messages.clear();
+          if (filter == Filter.all) {
+              messages.addAll(MessageService.getConversations(getContentResolver()));
+          } else {
+              messages.addAll(MessageService.getConversations(getContentResolver(), MessageService.MessageStatus.UNREAD));
+          }
           runOnUiThread(new Runnable() {
               @Override
               public void run() {
-                  messages.clear();
-                  if (filter == Filter.all) {
-                      messages.addAll(SmsService.getConversations(getContentResolver()));
-                  } else {
-                      messages.addAll(SmsService.getConversations(getContentResolver(), SmsService.MessageStatus.UNREAD));
-                  }
                   adapter.notifyDataSetChanged();
               }
           });
@@ -119,10 +111,10 @@ public class MessageList extends AppCompatActivity {
                 ArrayList<SMS> messages;
 
                 if (filterValue.equals("Unread")) {
-                    messages = SmsService.getConversations(getContentResolver(), SmsService.MessageStatus.UNREAD);
+                    messages = MessageService.getConversations(getContentResolver(), MessageService.MessageStatus.UNREAD);
                     filter = Filter.unread;
                 } else {
-                    messages = SmsService.getConversations(getContentResolver());
+                    messages = MessageService.getConversations(getContentResolver());
                     filter = Filter.all;
                 }
 
@@ -153,7 +145,7 @@ public class MessageList extends AppCompatActivity {
                 int pos = viewHolder.getAdapterPosition();
                 if (pos > -1) {
                     try {
-                        SmsService.deleteThreadById(getContentResolver(), messages1.get(viewHolder.getAdapterPosition()).getThreadId());
+                        MessageService.deleteThreadById(getContentResolver(), messages1.get(viewHolder.getAdapterPosition()).getThreadId());
                         ((SearchAndRemove) messageList.getAdapter()).removeItem(pos);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -169,7 +161,7 @@ public class MessageList extends AppCompatActivity {
     private void setupMessageList() {
         if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            messages = SmsService.getConversations(this.getContentResolver());
+            messages = MessageService.getConversations(this.getContentResolver());
             refreshMessageList(messages);
         } else {
             ActivityCompat.requestPermissions(
@@ -194,7 +186,6 @@ public class MessageList extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        setupMessageList();
         setupWatcher();
     }
 

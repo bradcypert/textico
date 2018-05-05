@@ -11,7 +11,7 @@ import com.bradcypert.textico.models.SMS;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class SmsService {
+public class MessageService {
     private static final String NONEMPTY = "body IS NOT NULL AND body != ''";
     private static final String UNREAD = "read = 0";
     private static final String SORT_DATE_DESC = "date desc";
