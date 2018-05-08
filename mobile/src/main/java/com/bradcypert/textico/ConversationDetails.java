@@ -251,7 +251,7 @@ public class ConversationDetails extends AppCompatActivity {
                     sendMMS(value);
                 } else if (!value.equals("")) {
                     sendSMS(value);
-                };
+                }
             }
         });
     }
