@@ -2,6 +2,7 @@ package com.bradcypert.textico.holders;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,8 @@ import com.bradcypert.textico.models.MMS;
 import com.bradcypert.textico.models.Message;
 import com.bradcypert.textico.models.SMS;
 import com.bradcypert.textico.services.ContactsService;
+import com.bradcypert.textico.services.MMSService;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -67,8 +70,14 @@ public class ConversationDetailsHolder extends RecyclerView.ViewHolder implement
         // this bad boi is an SMS
         if (message.getMessageType() == 1) {
             this.mmsImage.setVisibility(View.VISIBLE);
-            MMS m = (MMS) message;
-            this.mmsImage.setImageBitmap(m.getImage());
+            final MMS m = (MMS) message;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Bitmap bmp = MMSService.getMmsImage(context, m.getId());
+                    mmsImage.setImageBitmap(bmp);
+                }
+            }).run();
         }
 
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.messageBodyContainer.getLayoutParams();
@@ -81,9 +90,9 @@ public class ConversationDetailsHolder extends RecyclerView.ViewHolder implement
 
             if (showImage) {
                 if (this.contact.getPicUri() != null && !this.contact.getPicUri().equals("")) {
-                    this.contactImage.setImageURI(Uri.parse(this.contact.getPicUri()));
+                    Picasso.get().load(this.contact.getPicUri()).into(this.contactImage);
                 } else {
-                    this.contactImage.setImageResource(R.mipmap.empty_portait);
+                    Picasso.get().load(R.mipmap.empty_portait).into(this.contactImage);
                 }
                 this.contactImage.setVisibility(View.VISIBLE);
             }

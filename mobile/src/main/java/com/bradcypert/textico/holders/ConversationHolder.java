@@ -19,6 +19,7 @@ import com.bradcypert.textico.R;
 import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.SMS;
 import com.bradcypert.textico.services.ContactsService;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -60,9 +61,9 @@ public class ConversationHolder extends RecyclerView.ViewHolder implements View.
         }
 
         if (this.contact.getPicUri() != null) {
-            this.contactImage.setImageURI(Uri.parse(contact.getPicUri()));
+            Picasso.get().load(contact.getPicUri()).placeholder(R.mipmap.empty_portait).into(this.contactImage);
         } else {
-            this.contactImage.setImageResource(R.mipmap.empty_portait);
+            Picasso.get().load(R.mipmap.empty_portait).into(this.contactImage);
         }
 
         this.bodyView.setText(message.getBody());
@@ -81,9 +82,6 @@ public class ConversationHolder extends RecyclerView.ViewHolder implements View.
         intent.putExtra(ConversationDetails.THREAD_ID, this.message.getThreadId());
         this.hostActivity.getWindow().setSharedElementEnterTransition(new Slide());
         this.hostActivity.getWindow().setSharedElementExitTransition(new Slide());
-//        this.hostActivity.startActivity(intent,
-//                ActivityOptions.makeSceneTransitionAnimation(this.hostActivity,
-//                        Pair.create((View)this.contactImage, "contact_portrait")).toBundle());
         this.hostActivity.startActivity(intent,
                 ActivityOptions.makeSceneTransitionAnimation(this.hostActivity).toBundle());
     }

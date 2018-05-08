@@ -1,7 +1,6 @@
 package com.bradcypert.textico.services;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -10,7 +9,6 @@ import android.net.Uri;
 import android.provider.Telephony;
 
 import com.bradcypert.textico.models.MMS;
-import com.bradcypert.textico.models.SMS;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,49 +16,40 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class MMSService {
-    private static final String NONEMPTY = "body IS NOT NULL AND body != ''";
-    private static final String UNREAD = "read = 0";
-    private static final String SORT_DATE_DESC = "date desc";
     private static final String SORT_DATE_ASC = "date asc";
-
-    public enum MessageStatus {
-        UNREAD
-    }
-
-    public enum MessageType {
-        INBOX
-    }
-
-    private static Cursor getConversationDetailsCursor(ContentResolver contentResolver, String number) {
-        return contentResolver.query(Telephony.Sms.CONTENT_URI, null, NONEMPTY + " AND address="+number, null, SORT_DATE_ASC);
-    }
 
     private static Cursor getConversationMMSDetailsCursor(ContentResolver contentResolver, String threadId) {
         return contentResolver.query(Telephony.Mms.CONTENT_URI, null, "thread_id="+threadId, null, SORT_DATE_ASC);
     }
 
-    public static ArrayList<MMS> getAllMmsMessages(Context context, String threadId) {
-        ArrayList<MMS> mms = new ArrayList<>();
-        Cursor cursor = MMSService.getConversationMMSDetailsCursor(context.getContentResolver(), threadId);
-        try {
-            cursor.moveToFirst();
+    public static ArrayList<MMS> getAllMmsMessages(final Context context, final String threadId) {
+        final ArrayList<MMS> mms = new ArrayList<>();
 
-            while(!cursor.isAfterLast()) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Cursor cursor = MMSService.getConversationMMSDetailsCursor(context.getContentResolver(), threadId);
                 try {
-                    MMS message = buildMMSFromCursor(cursor, context);
-                    mms.add(message);
+                    cursor.moveToFirst();
+
+                    while(!cursor.isAfterLast()) {
+                        try {
+                            MMS message = buildMMSFromCursor(cursor, context);
+                            mms.add(message);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        cursor.moveToNext();
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    if (cursor != null) {
+                        cursor.close();
+                    }
                 }
-                cursor.moveToNext();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
+        }).run();
 
         return mms;
     }
@@ -87,7 +76,6 @@ public class MMSService {
     }
 
     private static String getAddressOfMMS(Context context, int mmsID) {
-        String selectionPart = "msg_id=" + mmsID;
         String address = null;
         Uri uri = Uri.parse("content://mms/"+mmsID+"/addr");
         Cursor cursor = context.getContentResolver().query(uri, new String[] { "address" },
@@ -158,7 +146,7 @@ public class MMSService {
         }
 
         int id = cursor.getInt(cursor.getColumnIndex(Telephony.Mms._ID));
-        String mmsId = cursor.getString(cursor.getColumnIndex(Telephony.Mms.MESSAGE_ID));
+//        String mmsId = cursor.getString(cursor.getColumnIndex(Telephony.Mms.MESSAGE_ID));
         int threadId = cursor.getInt(cursor.getColumnIndex(Telephony.Mms.THREAD_ID));
         String address = getAddressOfMMS(context, id);
         String part = getPartOfMMS(context, id);
@@ -174,11 +162,11 @@ public class MMSService {
                 .setRead(cursor.getString(cursor.getColumnIndex(Telephony.Mms.READ)))
                 .setSentByMe(cursor.getString(cursor.getColumnIndex(Telephony.Mms.DATE_SENT)).equals("0"))
                 .setPart(part)
-                .setImage(getMmsImage(context, id))
+//                .setImage(getMmsImage(context, id))
                 .build();
     }
 
-    private static Bitmap getMmsImage(Context context, int id) {
+    public static Bitmap getMmsImage(Context context, int id) {
         String selectionPart = "mid=" + id;
         Uri uri = Uri.parse("content://mms/part");
         Bitmap bitmap = null;

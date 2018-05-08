@@ -39,9 +39,6 @@ import java.util.TimerTask;
 public class ConversationDetails extends AppCompatActivity {
     public static final String KEY="id";
     public static final String THREAD_ID="thread_id";
-    private String SMS_SENT = "SMS_SENT";
-    private String SMS_DELIVERED = "SMS_DELIVERED";
-    private final SmsManager smsManager = SmsManager.getDefault();
     private final static int REQUEST_CODE_ASK_PERMISSIONS = 123;
     private ArrayList<SMS> smsMessages;
     private ArrayList<MMS> mmsMessages;
@@ -99,7 +96,7 @@ public class ConversationDetails extends AppCompatActivity {
                     });
                 }
             }
-        }, 250, 1000);
+        }, 250, 3000);
     }
 
     private void setupPictureButton() {

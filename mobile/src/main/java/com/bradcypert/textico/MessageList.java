@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -68,6 +69,7 @@ public class MessageList extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Debug.startMethodTracing("sample");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -181,6 +183,7 @@ public class MessageList extends AppCompatActivity {
             timer.purge();
             timer = null;
         }
+        Debug.stopMethodTracing();
     }
 
     @Override
