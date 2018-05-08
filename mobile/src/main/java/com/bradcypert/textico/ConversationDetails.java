@@ -21,8 +21,10 @@ import android.widget.Toast;
 
 import com.bradcypert.textico.adapters.ConversationDetailsAdapter;
 import com.bradcypert.textico.models.Contact;
+import com.bradcypert.textico.models.MMS;
 import com.bradcypert.textico.models.SMS;
 import com.bradcypert.textico.services.ContactsService;
+import com.bradcypert.textico.services.MMSService;
 import com.bradcypert.textico.services.MessageService;
 import com.klinker.android.send_message.Message;
 import com.klinker.android.send_message.Settings;
@@ -30,16 +32,20 @@ import com.klinker.android.send_message.Transaction;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class ConversationDetails extends AppCompatActivity {
     public static final String KEY="id";
+    public static final String THREAD_ID="thread_id";
     private String SMS_SENT = "SMS_SENT";
     private String SMS_DELIVERED = "SMS_DELIVERED";
     private final SmsManager smsManager = SmsManager.getDefault();
     private final static int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    private ArrayList<SMS> messages;
+    private ArrayList<SMS> smsMessages;
+    private ArrayList<MMS> mmsMessages;
+    private ArrayList<com.bradcypert.textico.models.Message> messagesForAdapter = new ArrayList<>();
     private ConversationDetailsAdapter adapter;
     private Timer timer;
     private Bitmap externalImage;
@@ -74,10 +80,17 @@ public class ConversationDetails extends AppCompatActivity {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+                ArrayList<MMS> newMMS = MMSService.getAllMmsMessages(getBaseContext(), getThreadIdFromIntent());
                 ArrayList<SMS> newMessages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
-                if(messages.size() != newMessages.size()) {
-                    messages.clear();
-                    messages.addAll(newMessages);
+                if(smsMessages.size() != newMessages.size() || newMMS.size() != mmsMessages.size()) {
+                    smsMessages.clear();
+                    mmsMessages.clear();
+                    mmsMessages.addAll(newMMS);
+                    smsMessages.addAll(newMessages);
+                    messagesForAdapter.clear();
+                    messagesForAdapter.addAll(newMessages);
+                    messagesForAdapter.addAll(newMMS);
+                    Collections.sort(messagesForAdapter);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -248,7 +261,8 @@ public class ConversationDetails extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                messages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
+                smsMessages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
+                mmsMessages = MMSService.getAllMmsMessages(getBaseContext(), getThreadIdFromIntent());
                 Contact currentContact = ContactsService.getContactForNumber(getContentResolver(), getKeyFromIntent(false));
                 if (currentContact.getName() != null) {
                     setTitle(currentContact.getName());
@@ -256,12 +270,20 @@ public class ConversationDetails extends AppCompatActivity {
                     setTitle(getKeyFromIntent(false));
                 }
                 RecyclerView messageList = (RecyclerView) findViewById(R.id.listView);
-                adapter = new ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messages);
+                messagesForAdapter.addAll(smsMessages);
+                messagesForAdapter.addAll(mmsMessages);
+                Collections.sort(messagesForAdapter);
+                adapter = new ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messagesForAdapter);
                 messageList.setAdapter(adapter);
                 messageList.setLayoutManager(new LinearLayoutManager(activity));
-                messageList.scrollToPosition(messages.size() - 1);
+                messageList.scrollToPosition(messagesForAdapter.size() - 1);
             }
         }).run();
+    }
+
+    private String getThreadIdFromIntent() {
+        Intent intent = getIntent();
+        return intent.getStringExtra(THREAD_ID);
     }
 
     private String getKeyFromIntent(boolean filter) {

@@ -5,7 +5,7 @@ import android.telephony.PhoneNumberUtils;
 
 import java.util.Date;
 
-public class SMS extends Message implements Comparable<SMS> {
+public class SMS extends Message {
     private final String DIGIT_REGEX = "\\d+";
     private final String US_ISO = "US";
 
@@ -77,14 +77,6 @@ public class SMS extends Message implements Comparable<SMS> {
         this.person = sender;
         this.sentByMe = sentByMe;
         this.threadId = threadId;
-    }
-
-    @Override
-    public int compareTo(@NonNull SMS o) {
-        if(this.timestamp == null || o.getTimestamp() == null) {
-            return 0;
-        }
-
-        return this.timestamp.compareTo(o.getTimestamp());
+        this.messageType = 0; // See MessageProperties.java
     }
 }

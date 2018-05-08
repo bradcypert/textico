@@ -27,13 +27,19 @@ public class MessageListAdapter extends RecyclerView.Adapter<ConversationHolder>
     private Activity host;
     private int itemResource;
 
-    public MessageListAdapter(Context context, int itemResource, ArrayList<SMS> messageList, Activity activity) {
+    public MessageListAdapter(final Context context, int itemResource, ArrayList<SMS> messageList, Activity activity) {
         super();
         this.messages = messageList;
         this.rootMessages = new ArrayList<>(messageList);
-        for (SMS message: this.rootMessages) {
-            contactsByNumber.put(message.getNumber(), ContactsService.getContactForNumber(context.getContentResolver(), message.getNumber()));
-        }
+        final ArrayList<SMS> rootMessages = this.rootMessages;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (SMS message: rootMessages) {
+                    contactsByNumber.put(message.getNumber(), ContactsService.getContactForNumber(context.getContentResolver(), message.getNumber()));
+                }
+            }
+        }).run();
 
         this.context = context;
         this.itemResource = itemResource;

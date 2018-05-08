@@ -1,10 +1,15 @@
 package com.bradcypert.textico.holders;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -73,6 +78,13 @@ public class ConversationHolder extends RecyclerView.ViewHolder implements View.
     public void onClick(View v) {
         Intent intent = new Intent(this.context, ConversationDetails.class);
         intent.putExtra(ConversationDetails.KEY, this.message.getNumber());
-        this.context.startActivity(intent);
+        intent.putExtra(ConversationDetails.THREAD_ID, this.message.getThreadId());
+        this.hostActivity.getWindow().setSharedElementEnterTransition(new Slide());
+        this.hostActivity.getWindow().setSharedElementExitTransition(new Slide());
+//        this.hostActivity.startActivity(intent,
+//                ActivityOptions.makeSceneTransitionAnimation(this.hostActivity,
+//                        Pair.create((View)this.contactImage, "contact_portrait")).toBundle());
+        this.hostActivity.startActivity(intent,
+                ActivityOptions.makeSceneTransitionAnimation(this.hostActivity).toBundle());
     }
 }

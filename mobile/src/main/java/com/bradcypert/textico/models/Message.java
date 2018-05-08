@@ -1,8 +1,10 @@
 package com.bradcypert.textico.models;
 
+import android.support.annotation.NonNull;
+
 import java.util.Date;
 
-public abstract class Message extends MessageProperties {
+public abstract class Message extends MessageProperties implements Comparable<Message> {
     public String getNumber() {
         return this.number;
     }
@@ -33,5 +35,18 @@ public abstract class Message extends MessageProperties {
 
     public boolean isSentByMe() {
         return this.sentByMe;
+    }
+
+    public int getMessageType() {
+        return this.messageType;
+    }
+
+    @Override
+    public int compareTo(@NonNull Message o) {
+        if(this.timestamp == null || o.getTimestamp() == null) {
+            return 0;
+        }
+
+        return this.timestamp.compareTo(o.getTimestamp());
     }
 }

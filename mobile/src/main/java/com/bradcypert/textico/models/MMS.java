@@ -1,18 +1,39 @@
 package com.bradcypert.textico.models;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.telephony.PhoneNumberUtils;
 
 import java.util.Date;
 
-public class MMS extends Message implements Comparable<MMS> {
+public class MMS extends Message {
     private final String DIGIT_REGEX = "\\d+";
     private final String US_ISO = "US";
+
+    private String type;
+    private String part;
+    private Bitmap image;
+
+    public String getType() {
+        return this.type;
+    }
+
+    public String getPart() {
+        return this.part;
+    }
+
+    public Bitmap getImage() {
+        return this.image;
+    }
+
 
 
     public static class MMSBuilder extends MessageProperties {
         private final String UNREAD = "0";
         private final String READ = "1";
+        private String type;
+        private String part;
+        private Bitmap image;
 
         public MMSBuilder() {}
 
@@ -56,16 +77,31 @@ public class MMS extends Message implements Comparable<MMS> {
             return this;
         }
 
+        public MMSBuilder setType(String type) {
+            this.type = type;
+            return this;
+        }
+
+        public MMSBuilder setPart(String part) {
+            this.part = part;
+            return this;
+        }
+
+        public MMSBuilder setImage(Bitmap image) {
+            this.image = image;
+            return this;
+        }
+
         public MMS build() throws Exception {
-            if(this.number == null || this.body == null || this.timestamp == null) {
+            if(this.number == null || this.timestamp == null) {
                 throw new Exception("Required fields for builder not met: Number, Body, Timestamp");
             } else {
-                return new MMS(number, body, timestamp, id, read, person, sentByMe, threadId);
+                return new MMS(number, body, timestamp, id, read, person, sentByMe, threadId, type, part, image);
             }
         }
     }
 
-    private MMS(String number, String body, Date timestamp, int id, boolean read, String sender, boolean sentByMe, String threadId) {
+    private MMS(String number, String body, Date timestamp, int id, boolean read, String sender, boolean sentByMe, String threadId, String type, String part, Bitmap image) {
         if (number.matches(DIGIT_REGEX)) {
             this.number = PhoneNumberUtils.formatNumber(number, US_ISO);
         } else {
@@ -78,14 +114,9 @@ public class MMS extends Message implements Comparable<MMS> {
         this.person = sender;
         this.sentByMe = sentByMe;
         this.threadId = threadId;
-    }
-
-    @Override
-    public int compareTo(@NonNull MMS o) {
-        if(this.timestamp == null || o.getTimestamp() == null) {
-            return 0;
-        }
-
-        return this.timestamp.compareTo(o.getTimestamp());
+        this.type = type;
+        this.part = part;
+        this.messageType = 1; // See MessageProperties.java
+        this.image = image;
     }
 }

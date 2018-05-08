@@ -43,9 +43,7 @@ public class MessageService {
         while(!inboxCursor.isAfterLast()) {
             try {
                 SMS message = buildSmsFromCursor(inboxCursor);
-//                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
-                    messages.add(message);
-//                }
+                messages.add(message);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -68,10 +66,10 @@ public class MessageService {
         while(!inboxCursor.isAfterLast()) {
             try {
                 SMS message = buildSmsFromCursor(inboxCursor);
-//                if (ThreadService.isThreadActive(contentResolver, message.getThreadId())) {
-                    messages.add(message);
-//                }
-            } catch (Exception e) {}
+                messages.add(message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             inboxCursor.moveToNext();
         }
@@ -87,7 +85,9 @@ public class MessageService {
         while(!inboxCursor.isAfterLast()) {
             try {
                 messages.add(buildSmsFromCursor(inboxCursor));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             inboxCursor.moveToNext();
         }
