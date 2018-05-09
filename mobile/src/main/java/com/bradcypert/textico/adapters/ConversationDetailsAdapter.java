@@ -38,7 +38,7 @@ public class ConversationDetailsAdapter extends RecyclerView.Adapter<Conversatio
         // 3. Inflate the view and return the new ViewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(this.itemResource, parent, false);
-        return new ConversationDetailsHolder(this.context, view);
+        return new ConversationDetailsHolder(this.context, view, contact);
     }
 
     // 4. Override the onBindViewHolder method
@@ -60,7 +60,7 @@ public class ConversationDetailsAdapter extends RecyclerView.Adapter<Conversatio
             showImage = true;
         }
 
-        holder.bindMessage(message, showImage, this.contact);
+        holder.bindMessage(message, showImage);
     }
 
     @Override

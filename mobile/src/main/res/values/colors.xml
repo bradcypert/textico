@@ -3,5 +3,18 @@
     <color name="colorPrimary">#42E1F4</color>
     <color name="colorPrimaryDark">#04CA95</color>
     <color name="colorAccent">#6635A5</color>
-    <color name="linkBlue">#F4652D</color>
+    <color name="colorLink">#F4652D</color>
+    <color name="chatBubbleMine">#333333</color>
+
+    <color name="retroPrimary">#ddd</color>
+    <color name="retroPrimaryDark">#333333</color>
+    <color name="retroAccent">#aa9</color>
+    <color name="retroLink">#99b</color>
+    <color name="retroChatBubbleMine">#aaa</color>
+
+    <color name="pizzaPrimary">#c34</color>
+    <color name="pizzaPrimaryDark">#c64</color>
+    <color name="pizzaAccent">#944</color>
+    <color name="pizzaLink">#333</color>
+    <color name="pizzaChatBubbleMine">#484</color>
 </resources>

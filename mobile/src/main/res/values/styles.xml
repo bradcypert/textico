@@ -6,22 +6,45 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="textColorLink">@color/colorLink</item>
+        <item name="chatBubbleMine">@color/chatBubbleMine</item>
         <item name="android:windowActivityTransitions">true</item>
-        <!-- specify enter and exit transitions -->
-        <!-- specify shared element transitions -->
-        <!--<item name="android:windowSharedElementEnterTransition">-->
-            <!--@transition/change_image_transform</item>-->
-        <!--<item name="android:windowSharedElementExitTransition">-->
-            <!--@transition/change_image_transform</item>-->
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- Base application theme. -->
+    <style name="Retro" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/retroPrimary</item>
+        <item name="colorPrimaryDark">@color/retroPrimaryDark</item>
+        <item name="colorAccent">@color/retroAccent</item>
+        <item name="textColorLink">@color/retroLink</item>
+        <item name="chatBubbleMine">@color/retroChatBubbleMine</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+    <style name="Retro.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Pizza" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/pizzaPrimary</item>
+        <item name="colorPrimaryDark">@color/pizzaPrimaryDark</item>
+        <item name="colorAccent">@color/pizzaAccent</item>
+        <item name="textColorLink">@color/pizzaLink</item>
+        <item name="chatBubbleMine">@color/pizzaChatBubbleMine</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+    <style name="Pizza.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 
 </resources>

@@ -38,7 +38,7 @@ public class ConversationDetailsHolder extends RecyclerView.ViewHolder implement
     public Contact contact;
     private Message message;
 
-    public ConversationDetailsHolder(Context context, View itemView) {
+    public ConversationDetailsHolder(Context context, View itemView, Contact contact) {
         super(itemView);
 
         this.context = context;
@@ -48,12 +48,12 @@ public class ConversationDetailsHolder extends RecyclerView.ViewHolder implement
         this.messageBody = (TextView) itemView.findViewById(R.id.message_body);
         this.contactImage = (ImageView) itemView.findViewById(R.id.contact_details_image);
         this.mmsImage = (ImageView) itemView.findViewById(R.id.mms_image);
+        this.contact = contact;
 
         itemView.setOnClickListener(this);
     }
 
-    public void bindMessage(Message message, boolean showImage, Contact contact) {
-        this.contact = contact;
+    public void bindMessage(Message message, boolean showImage) {
         this.message = message;
 
         this.messageBody.setText(message.getBody());

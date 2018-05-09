@@ -50,13 +50,19 @@ public class ConversationDetails extends AppCompatActivity {
     private Timer timer;
     private Bitmap externalImage;
     private Contact currentContact;
+    private RecyclerView messageList;
+    private EditText sendText;
+    private ImageButton sendButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_details);
 
-        currentContact = new Contact.ContactBuilder().setName(getContactNameFromIntent()).setPicUri(getContactPictureFromIntent()).build();
+        this.currentContact = new Contact.ContactBuilder().setName(getContactNameFromIntent()).setPicUri(getContactPictureFromIntent()).build();
+        this.messageList = findViewById(R.id.listView);
+        this.sendText = findViewById(R.id.send_text);
+        this.sendButton = findViewById(R.id.image_button);
 
         new Thread(new Runnable() {
             @Override
@@ -111,7 +117,6 @@ public class ConversationDetails extends AppCompatActivity {
     }
 
     private void setupPictureButton() {
-        ImageButton sendButton = findViewById(R.id.image_button);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -202,7 +207,6 @@ public class ConversationDetails extends AppCompatActivity {
     }
 
     private void sendMMS(final String text) {
-        final EditText sendText = findViewById(R.id.send_text);
         if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
 
@@ -277,7 +281,6 @@ public class ConversationDetails extends AppCompatActivity {
             public void run() {
                 smsMessages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
                 mmsMessages = MMSService.getAllMmsMessages(getBaseContext(), getThreadIdFromIntent());
-                final RecyclerView messageList = findViewById(R.id.listView);
                 messagesForAdapter.addAll(smsMessages);
                 messagesForAdapter.addAll(mmsMessages);
                 Collections.sort(messagesForAdapter);

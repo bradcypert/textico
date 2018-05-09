@@ -45,7 +45,6 @@
                 android:layout_height="wrap_content"
                 android:autoLink="web|email|phone|map|all"
                 android:padding="8dp"
-                android:textColorLink="@color/linkBlue"
                 android:textColor="@android:color/white" />
         </LinearLayout>
     </RelativeLayout>
