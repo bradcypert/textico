@@ -80,9 +80,10 @@ public class ConversationHolder extends RecyclerView.ViewHolder implements View.
         Intent intent = new Intent(this.context, ConversationDetails.class);
         intent.putExtra(ConversationDetails.KEY, this.message.getNumber());
         intent.putExtra(ConversationDetails.THREAD_ID, this.message.getThreadId());
-        this.hostActivity.getWindow().setSharedElementEnterTransition(new Slide());
-        this.hostActivity.getWindow().setSharedElementExitTransition(new Slide());
-        this.hostActivity.startActivity(intent,
-                ActivityOptions.makeSceneTransitionAnimation(this.hostActivity).toBundle());
+//        this.hostActivity.getWindow().setSharedElementEnterTransition(new Slide());
+//        this.hostActivity.getWindow().setSharedElementExitTransition(new Slide());
+        this.hostActivity.startActivity(intent);
+//        this.hostActivity.startActivity(intent,
+//                ActivityOptions.makeSceneTransitionAnimation(this.hostActivity).toBundle());
     }
 }

@@ -140,9 +140,9 @@ public class MMSService {
     }
 
     private static MMS buildMMSFromCursor(Cursor cursor, Context context) throws Exception {
-        long date = Long.parseLong(cursor.getString(cursor.getColumnIndex(Telephony.Mms.DATE)));
+        long date = cursor.getLong(cursor.getColumnIndex(Telephony.Mms.DATE));
         if (date == 0) {
-            date = Long.parseLong(cursor.getString(cursor.getColumnIndex(Telephony.Mms.DATE_SENT)));
+            date = cursor.getLong(cursor.getColumnIndex(Telephony.Mms.DATE_SENT));
         }
 
         int id = cursor.getInt(cursor.getColumnIndex(Telephony.Mms._ID));
@@ -156,7 +156,7 @@ public class MMSService {
                 .setBody(message)
                 .setId(id)
                 .setThreadId(String.valueOf(threadId))
-                .setTimestamp(new Date(date))
+                .setTimestamp(new Date(date * 1000L))
                 .setType(type)
                 .setNumber(address)
                 .setRead(cursor.getString(cursor.getColumnIndex(Telephony.Mms.READ)))

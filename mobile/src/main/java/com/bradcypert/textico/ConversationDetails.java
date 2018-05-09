@@ -6,13 +6,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -52,14 +52,19 @@ public class ConversationDetails extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_details);
 
-        String key = getKeyFromIntent(true);
-        if (key != null) {
-            MessageService.flagMessageAsRead(getContentResolver(), key);
-        }
-        setupMessageList();
-        setupSendButton();
-        setupPictureButton();
-        setupWatcher();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String key = getKeyFromIntent(true);
+                if (key != null) {
+                    MessageService.flagMessageAsRead(getContentResolver(), key);
+                }
+                setupMessageList();
+                setupSendButton();
+                setupPictureButton();
+                setupWatcher();
+            }
+        }).run();
     }
 
     @Override
@@ -151,7 +156,7 @@ public class ConversationDetails extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
 
-            new Thread(new Runnable() {
+            AsyncTask.execute(new Runnable() {
                 @Override
                 public void run() {
                     Settings sendSettings = new Settings();
@@ -161,7 +166,7 @@ public class ConversationDetails extends AppCompatActivity {
                     sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID);
                     sendText.setText("");
                 }
-            }).run();
+            });
 
             try {
                 timer.cancel();
@@ -192,7 +197,7 @@ public class ConversationDetails extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
 
-            new Thread(new Runnable() {
+            AsyncTask.execute(new Runnable() {
                 @Override
                 public void run() {
                     Settings sendSettings = new Settings();
@@ -202,25 +207,28 @@ public class ConversationDetails extends AppCompatActivity {
                     Message mMessage = new Message(text, getKeyFromIntent(true));
                     mMessage.setImage(externalImage);
                     sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID);
-                    sendText.setText("");
                     final ImageView imgv = (ImageView) findViewById(R.id.mmsImage);
-                    imgv.setImageBitmap(null);
-                    imgv.setVisibility(View.INVISIBLE);
-                    externalImage = null;
-                    final ImageButton btn = (ImageButton) findViewById(R.id.remove_image_button);
-                    btn.setVisibility(View.INVISIBLE);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            sendText.setText("");
+                            imgv.setImageBitmap(null);
+                            imgv.setVisibility(View.INVISIBLE);
+                            externalImage = null;
+                            final ImageButton btn = (ImageButton) findViewById(R.id.remove_image_button);
+                            btn.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    try {
+                        timer.cancel();
+                        timer.purge();
+                        timer = null;
+                        setupWatcher();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }).run();
-
-
-            try {
-                timer.cancel();
-                timer.purge();
-                timer = null;
-                setupWatcher();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            });
         } else {
             ActivityCompat.requestPermissions(
                     ConversationDetails.this,
@@ -255,27 +263,33 @@ public class ConversationDetails extends AppCompatActivity {
 
     private void setupMessageList() {
         final Activity activity = this;
-        new Thread(new Runnable() {
+        AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 smsMessages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
                 mmsMessages = MMSService.getAllMmsMessages(getBaseContext(), getThreadIdFromIntent());
-                Contact currentContact = ContactsService.getContactForNumber(getContentResolver(), getKeyFromIntent(false));
-                if (currentContact.getName() != null) {
-                    setTitle(currentContact.getName());
-                } else {
-                    setTitle(getKeyFromIntent(false));
-                }
-                RecyclerView messageList = (RecyclerView) findViewById(R.id.listView);
+                final Contact currentContact = ContactsService.getContactForNumber(getContentResolver(), getKeyFromIntent(false));
+                final RecyclerView messageList = (RecyclerView) findViewById(R.id.listView);
                 messagesForAdapter.addAll(smsMessages);
                 messagesForAdapter.addAll(mmsMessages);
                 Collections.sort(messagesForAdapter);
                 adapter = new ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messagesForAdapter);
-                messageList.setAdapter(adapter);
-                messageList.setLayoutManager(new LinearLayoutManager(activity));
-                messageList.scrollToPosition(messagesForAdapter.size() - 1);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (currentContact.getName() != null) {
+                            setTitle(currentContact.getName());
+                        } else {
+                            setTitle(getKeyFromIntent(false));
+                        }
+                        messageList.setAdapter(adapter);
+                        messageList.setLayoutManager(new LinearLayoutManager(activity));
+                        messageList.scrollToPosition(messagesForAdapter.size() - 1);
+                    }
+                });
             }
-        }).run();
+        });
     }
 
     private String getThreadIdFromIntent() {

@@ -42,7 +42,8 @@ public class SmsListener extends BroadcastReceiver {
                         .setSmallIcon(R.mipmap.empty_portait)
                         .setLargeIcon(bitmap)
                         .setContentTitle(phoneNumber)
-                        .setContentText(messageBody);
+                        .setContentText(messageBody)
+                        .setAutoCancel(true);
 
                 Notification.MessagingStyle.Message message1 = new Notification.MessagingStyle.Message(smsMessage.getMessageBody(),
                                 smsMessage.getTimestampMillis(),
@@ -75,6 +76,7 @@ public class SmsListener extends BroadcastReceiver {
                 cv.put("body", messageBody);
                 cv.put("read", 0);
                 cv.put("date", dateTime);
+                cv.put("date_sent", "1");
 
                 context.getContentResolver().insert(Telephony.Sms.Inbox.CONTENT_URI, cv);
 
