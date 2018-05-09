@@ -39,18 +39,24 @@ import java.util.TimerTask;
 public class ConversationDetails extends AppCompatActivity {
     public static final String KEY="id";
     public static final String THREAD_ID="thread_id";
+    public static final String CONTACT_PICTURE="contact_picture";
+    public static final String CONTACT_NAME="contact_name";
     private final static int REQUEST_CODE_ASK_PERMISSIONS = 123;
+    private final static int IMAGE_REQUEST_CODE = 555;
     private ArrayList<SMS> smsMessages;
     private ArrayList<MMS> mmsMessages;
     private ArrayList<com.bradcypert.textico.models.Message> messagesForAdapter = new ArrayList<>();
     private ConversationDetailsAdapter adapter;
     private Timer timer;
     private Bitmap externalImage;
+    private Contact currentContact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_details);
+
+        currentContact = new Contact.ContactBuilder().setName(getContactNameFromIntent()).setPicUri(getContactPictureFromIntent()).build();
 
         new Thread(new Runnable() {
             @Override
@@ -105,14 +111,14 @@ public class ConversationDetails extends AppCompatActivity {
     }
 
     private void setupPictureButton() {
-        ImageButton sendButton = (ImageButton) findViewById(R.id.image_button);
+        ImageButton sendButton = findViewById(R.id.image_button);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), 555);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), IMAGE_REQUEST_CODE);
             }
         });
     }
@@ -122,17 +128,15 @@ public class ConversationDetails extends AppCompatActivity {
         if (resultCode != RESULT_OK) {
             return;
         }
-        if (requestCode == 555) {
-            final Bundle extras = data.getExtras();
-
+        if (requestCode == IMAGE_REQUEST_CODE) {
             if (data.getData() != null) {
                 try {
                     externalImage = BitmapFactory.decodeStream(getApplicationContext().getContentResolver().openInputStream(data.getData()));
-                    final ImageView imgv = (ImageView) findViewById(R.id.mmsImage);
+                    final ImageView imgv = findViewById(R.id.mmsImage);
                     imgv.setImageBitmap(externalImage);
                     imgv.setVisibility(View.VISIBLE);
 
-                    final ImageButton btn = (ImageButton) findViewById(R.id.remove_image_button);
+                    final ImageButton btn = findViewById(R.id.remove_image_button);
                     btn.setVisibility(View.VISIBLE);
                     btn.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -152,7 +156,7 @@ public class ConversationDetails extends AppCompatActivity {
     }
 
     private void sendSMS(final String text) {
-        final EditText sendText = (EditText) findViewById(R.id.send_text);
+        final EditText sendText = findViewById(R.id.send_text);
         if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
 
@@ -164,7 +168,12 @@ public class ConversationDetails extends AppCompatActivity {
                     Transaction sendTransaction = new Transaction(getBaseContext(), sendSettings);
                     Message mMessage = new Message(text, getKeyFromIntent(true));
                     sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID);
-                    sendText.setText("");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            sendText.setText("");
+                        }
+                    });
                 }
             });
 
@@ -193,7 +202,7 @@ public class ConversationDetails extends AppCompatActivity {
     }
 
     private void sendMMS(final String text) {
-        final EditText sendText = (EditText) findViewById(R.id.send_text);
+        final EditText sendText = findViewById(R.id.send_text);
         if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
 
@@ -207,7 +216,7 @@ public class ConversationDetails extends AppCompatActivity {
                     Message mMessage = new Message(text, getKeyFromIntent(true));
                     mMessage.setImage(externalImage);
                     sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID);
-                    final ImageView imgv = (ImageView) findViewById(R.id.mmsImage);
+                    final ImageView imgv = findViewById(R.id.mmsImage);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -215,7 +224,7 @@ public class ConversationDetails extends AppCompatActivity {
                             imgv.setImageBitmap(null);
                             imgv.setVisibility(View.INVISIBLE);
                             externalImage = null;
-                            final ImageButton btn = (ImageButton) findViewById(R.id.remove_image_button);
+                            final ImageButton btn = findViewById(R.id.remove_image_button);
                             btn.setVisibility(View.INVISIBLE);
                         }
                     });
@@ -246,8 +255,8 @@ public class ConversationDetails extends AppCompatActivity {
     }
 
     private void setupSendButton() {
-        ImageButton sendButton = (ImageButton) findViewById(R.id.send_button);
-        final EditText sendText = (EditText) findViewById(R.id.send_text);
+        ImageButton sendButton = findViewById(R.id.send_button);
+        final EditText sendText = findViewById(R.id.send_text);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -268,12 +277,11 @@ public class ConversationDetails extends AppCompatActivity {
             public void run() {
                 smsMessages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
                 mmsMessages = MMSService.getAllMmsMessages(getBaseContext(), getThreadIdFromIntent());
-                final Contact currentContact = ContactsService.getContactForNumber(getContentResolver(), getKeyFromIntent(false));
-                final RecyclerView messageList = (RecyclerView) findViewById(R.id.listView);
+                final RecyclerView messageList = findViewById(R.id.listView);
                 messagesForAdapter.addAll(smsMessages);
                 messagesForAdapter.addAll(mmsMessages);
                 Collections.sort(messagesForAdapter);
-                adapter = new ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messagesForAdapter);
+                adapter = new ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messagesForAdapter, currentContact);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -295,6 +303,16 @@ public class ConversationDetails extends AppCompatActivity {
     private String getThreadIdFromIntent() {
         Intent intent = getIntent();
         return intent.getStringExtra(THREAD_ID);
+    }
+
+    private String getContactPictureFromIntent() {
+        Intent intent = getIntent();
+        return intent.getStringExtra(CONTACT_PICTURE);
+    }
+
+    private String getContactNameFromIntent() {
+        Intent intent = getIntent();
+        return intent.getStringExtra(CONTACT_NAME);
     }
 
     private String getKeyFromIntent(boolean filter) {

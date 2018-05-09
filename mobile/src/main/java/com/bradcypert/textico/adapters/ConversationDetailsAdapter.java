@@ -1,6 +1,7 @@
 package com.bradcypert.textico.adapters;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,17 +23,14 @@ public class ConversationDetailsAdapter extends RecyclerView.Adapter<Conversatio
     private final ArrayList<Message> messages;
     private Context context;
     private int itemResource;
-    private final HashMap<String, Contact> contactsByNumber = new HashMap<>();
+    private Contact contact;
 
-    public ConversationDetailsAdapter(Context context, int itemResource, ArrayList<Message> messageList) {
+    public ConversationDetailsAdapter(Context context, int itemResource, ArrayList<Message> messageList, Contact contact) {
         super();
         this.messages = messageList;
         this.context = context;
         this.itemResource = itemResource;
-
-        for (Message message: this.messages) {
-            contactsByNumber.put(message.getNumber(), ContactsService.getContactForNumber(context.getContentResolver(), message.getNumber()));
-        }
+        this.contact = contact;
     }
 
     @Override
@@ -45,7 +43,7 @@ public class ConversationDetailsAdapter extends RecyclerView.Adapter<Conversatio
 
     // 4. Override the onBindViewHolder method
     @Override
-    public void onBindViewHolder(ConversationDetailsHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ConversationDetailsHolder holder, int position) {
         Message message = this.messages.get(position);
         Message after = null;
         boolean showImage = false;
@@ -58,11 +56,11 @@ public class ConversationDetailsAdapter extends RecyclerView.Adapter<Conversatio
 
         if (after == null) {
             showImage = true;
-        } else if (!message.isSentByMe() && message.getSenderId() != null && !message.getSenderId().equals(after.getSenderId())) {
+        } else if (!message.isSentByMe() && after.isSentByMe()) {
             showImage = true;
         }
 
-        holder.bindMessage(message, showImage, contactsByNumber.get(message.getNumber()));
+        holder.bindMessage(message, showImage, this.contact);
     }
 
     @Override
