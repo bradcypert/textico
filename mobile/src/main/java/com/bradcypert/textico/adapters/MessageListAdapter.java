@@ -58,7 +58,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<ConversationHolder>
     @Override
     public void onBindViewHolder(ConversationHolder holder, int position) {
         SMS message = this.messages.get(position);
-        holder.bindSMS(message, this.host);
+        holder.bindSMS(message, this.host, contactsByNumber.get(message.getNumber()));
     }
 
     @Override

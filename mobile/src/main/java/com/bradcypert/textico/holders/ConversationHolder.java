@@ -42,16 +42,16 @@ public class ConversationHolder extends RecyclerView.ViewHolder implements View.
 
         this.context = context;
 
-        this.numberView = (TextView) itemView.findViewById(R.id.address);
-        this.bodyView = (TextView) itemView.findViewById(R.id.message_body);
-        this.timestampView = (TextView) itemView.findViewById(R.id.timestamp);
-        this.contactImage = (ImageView) itemView.findViewById(R.id.contact_image);
+        this.numberView = itemView.findViewById(R.id.address);
+        this.bodyView = itemView.findViewById(R.id.message_body);
+        this.timestampView = itemView.findViewById(R.id.timestamp);
+        this.contactImage = itemView.findViewById(R.id.contact_image);
 
         itemView.setOnClickListener(this);
     }
 
-    public void bindSMS(SMS message, Activity host) {
-        this.contact = ContactsService.getContactForNumber(this.context.getContentResolver(), message.getNumber());
+    public void bindSMS(SMS message, Activity host, Contact contact) {
+        this.contact = contact;
         this.message = message;
 
         if (this.contact.getName() != null) {

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Debug;
 import android.support.design.widget.FloatingActionButton;
@@ -67,12 +68,14 @@ public class MessageList extends AppCompatActivity {
       }
     };
 
+    private FloatingActionButton fab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Debug.startMethodTracing("sample");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getWindow().setExitTransition(new Slide(Gravity.START));
@@ -82,8 +85,12 @@ public class MessageList extends AppCompatActivity {
 
         setupMessageFilters();
         setupMessageList();
+        setupFab();
+    }
+
+    private void setupFab() {
         final Activity a = this;
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,7 +107,7 @@ public class MessageList extends AppCompatActivity {
     }
 
     private void setupMessageFilters() {
-        Spinner filterSpinner = (Spinner) findViewById(R.id.filter_spinner);
+        Spinner filterSpinner = findViewById(R.id.filter_spinner);
         ArrayAdapter<CharSequence> filters = ArrayAdapter.createFromResource(this,
                 R.array.filter_options, R.layout.filter_option);
 
@@ -128,36 +135,44 @@ public class MessageList extends AppCompatActivity {
         });
     }
 
-    private void refreshMessageList(ArrayList<SMS> messages) {
-        final RecyclerView messageList = (RecyclerView) findViewById(R.id.message_list);
-        final ArrayList<SMS> messages1 = messages;
-        adapter = new MessageListAdapter(getBaseContext(), R.layout.message_list_adapter_view, messages, this);
-        messageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
-        messageList.setAdapter(adapter);
-        int verticalSpacing = 5;
+    private void refreshMessageList(final ArrayList<SMS> messages) {
+        final RecyclerView messageList = findViewById(R.id.message_list);
+        final Activity a = this;
 
-        VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(verticalSpacing);
-        messageList.addItemDecoration(itemDecorator);
-
-        SwipeToDeleteCallback swipe = new SwipeToDeleteCallback(messageList) {
+        AsyncTask.execute(new Runnable() {
             @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                // Row is swiped from recycler view
-                // remove it from adapter
-                int pos = viewHolder.getAdapterPosition();
-                if (pos > -1) {
-                    try {
-                        MessageService.deleteThreadById(getContentResolver(), messages1.get(viewHolder.getAdapterPosition()).getThreadId());
-                        ((SearchAndRemove) messageList.getAdapter()).removeItem(pos);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            public void run() {
+                adapter = new MessageListAdapter(getBaseContext(), R.layout.message_list_adapter_view, messages, a);
+                final VerticalSpaceItemDecorator itemDecorator = new VerticalSpaceItemDecorator(5);
+                final SwipeToDeleteCallback swipe = new SwipeToDeleteCallback(messageList) {
+                    @Override
+                    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                        // Row is swiped from recycler view
+                        // remove it from adapter
+                        int pos = viewHolder.getAdapterPosition();
+                        if (pos > -1) {
+                            try {
+                                MessageService.deleteThreadById(getContentResolver(), messages.get(viewHolder.getAdapterPosition()).getThreadId());
+                                ((SearchAndRemove) messageList.getAdapter()).removeItem(pos);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
-                }
-            }
-        };
+                };
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipe);
-        itemTouchHelper.attachToRecyclerView(messageList);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        messageList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+                        messageList.setAdapter(adapter);
+                        messageList.addItemDecoration(itemDecorator);
+                        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(swipe);
+                        itemTouchHelper.attachToRecyclerView(messageList);
+                    }
+                });
+            }
+        });
     }
 
     private void setupMessageList() {
