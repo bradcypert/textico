@@ -72,7 +72,6 @@ public class MessageList extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Debug.startMethodTracing("sample");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -198,7 +197,6 @@ public class MessageList extends AppCompatActivity {
             timer.purge();
             timer = null;
         }
-        Debug.stopMethodTracing();
     }
 
     @Override
