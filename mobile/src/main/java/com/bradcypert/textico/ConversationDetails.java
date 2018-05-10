@@ -70,7 +70,7 @@ public class ConversationDetails extends AppCompatActivity {
             public void run() {
                 String key = getKeyFromIntent(true);
                 if (key != null) {
-                    MessageService.flagMessageAsRead(getContentResolver(), key);
+                    MessageService.INSTANCE.flagMessageAsRead(getContentResolver(), key);
                 }
                 setupMessageList();
                 setupSendButton();
@@ -96,7 +96,7 @@ public class ConversationDetails extends AppCompatActivity {
             @Override
             public void run() {
                 ArrayList<MMS> newMMS = MMSService.getAllMmsMessages(getBaseContext(), getThreadIdFromIntent());
-                ArrayList<SMS> newMessages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
+                ArrayList<SMS> newMessages = MessageService.INSTANCE.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
                 if(smsMessages.size() != newMessages.size() || newMMS.size() != mmsMessages.size()) {
                     smsMessages.clear();
                     mmsMessages.clear();
@@ -280,7 +280,7 @@ public class ConversationDetails extends AppCompatActivity {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                smsMessages = MessageService.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
+                smsMessages = MessageService.INSTANCE.getConversationDetails(getContentResolver(), getKeyFromIntent(true));
                 mmsMessages = MMSService.getAllMmsMessages(getBaseContext(), getThreadIdFromIntent());
                 messagesForAdapter.addAll(smsMessages);
                 messagesForAdapter.addAll(mmsMessages);

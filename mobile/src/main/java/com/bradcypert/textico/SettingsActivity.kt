@@ -31,10 +31,6 @@ class SettingsActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-    }
-
     private fun setupMessageFilters() {
         val a = this
         val currentName = ThemeService.getThemeName(this)
@@ -46,7 +42,7 @@ class SettingsActivity : AppCompatActivity() {
         filterSpinner.adapter = filters
         filterSpinner.setSelection(filters.getPosition(ThemeService.getThemeName(a)))
         filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val filterValue = parent.getItemAtPosition(position) as String
                 if (currentName != filterValue) {
                     ThemeService.setThemeName(a, filterValue)

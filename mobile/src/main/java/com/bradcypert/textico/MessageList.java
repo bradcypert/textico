@@ -57,9 +57,9 @@ public class MessageList extends AppCompatActivity {
       public void onReceive(Context context, Intent intent) {
           messages.clear();
           if (filter == Filter.all) {
-              messages.addAll(MessageService.getConversations(getContentResolver()));
+              messages.addAll(MessageService.INSTANCE.getConversations(getContentResolver()));
           } else {
-              messages.addAll(MessageService.getConversations(getContentResolver(), MessageService.MessageStatus.UNREAD));
+              messages.addAll(MessageService.INSTANCE.getConversations(getContentResolver(), MessageService.MessageStatus.UNREAD));
           }
           runOnUiThread(new Runnable() {
               @Override
@@ -123,10 +123,10 @@ public class MessageList extends AppCompatActivity {
                 ArrayList<SMS> messages;
 
                 if (filterValue.equals("Unread")) {
-                    messages = MessageService.getConversations(getContentResolver(), MessageService.MessageStatus.UNREAD);
+                    messages = MessageService.INSTANCE.getConversations(getContentResolver(), MessageService.MessageStatus.UNREAD);
                     filter = Filter.unread;
                 } else {
-                    messages = MessageService.getConversations(getContentResolver());
+                    messages = MessageService.INSTANCE.getConversations(getContentResolver());
                     filter = Filter.all;
                 }
 
@@ -155,7 +155,7 @@ public class MessageList extends AppCompatActivity {
                         int pos = viewHolder.getAdapterPosition();
                         if (pos > -1) {
                             try {
-                                MessageService.deleteThreadById(getContentResolver(), messages.get(viewHolder.getAdapterPosition()).getThreadId());
+                                MessageService.INSTANCE.deleteThreadById(getContentResolver(), messages.get(viewHolder.getAdapterPosition()).getThreadId());
                                 ((SearchAndRemove) messageList.getAdapter()).removeItem(pos);
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -181,7 +181,7 @@ public class MessageList extends AppCompatActivity {
     private void setupMessageList() {
         if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            messages = MessageService.getConversations(this.getContentResolver());
+            messages = MessageService.INSTANCE.getConversations(this.getContentResolver());
             refreshMessageList(messages);
         } else {
             ActivityCompat.requestPermissions(
