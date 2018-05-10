@@ -74,10 +74,10 @@ public class MessageList extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(ThemeService.getSelectedTheme(this, false));
+        setTheme(ThemeService.INSTANCE.getSelectedTheme(this, false));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
-        this.initialTheme = ThemeService.getThemeName(this);
+        this.initialTheme = ThemeService.INSTANCE.getThemeName(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -205,7 +205,7 @@ public class MessageList extends AppCompatActivity {
 
     @Override
     public void onResume() {
-        if (!this.initialTheme.equals(ThemeService.getThemeName(this))) {
+        if (!this.initialTheme.equals(ThemeService.INSTANCE.getThemeName(this))) {
             Intent intent = new Intent(this, this.getClass());
             startActivity(intent);
             finish();

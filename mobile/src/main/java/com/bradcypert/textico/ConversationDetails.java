@@ -56,7 +56,7 @@ public class ConversationDetails extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(ThemeService.getSelectedTheme(this, true));
+        setTheme(ThemeService.INSTANCE.getSelectedTheme(this, true));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_details);
 
