@@ -13,9 +13,7 @@
         android:layout_width="75dp"
         android:layout_height="75dp"
         android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:src="@mipmap/empty_portait"
-        android:transitionName="contact_portrait"/>
+        android:paddingBottom="10dp" />
 
     <LinearLayout
         android:layout_width="match_parent"

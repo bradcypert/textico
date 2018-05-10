@@ -205,13 +205,12 @@ public class MessageList extends AppCompatActivity {
 
     @Override
     public void onResume() {
-        super.onResume();
         if (!this.initialTheme.equals(ThemeService.getThemeName(this))) {
-//            if (listener != null && isListenerRegistered) {
-//                unregisterReceiver(listener);
-//            }
-            recreate();
+            Intent intent = new Intent(this, this.getClass());
+            startActivity(intent);
+            finish();
         }
+        super.onResume();
 //        else {
 //            setupWatcher();
 //        }

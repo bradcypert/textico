@@ -17,4 +17,23 @@
     <color name="pizzaAccent">#944</color>
     <color name="pizzaLink">#333</color>
     <color name="pizzaChatBubbleMine">#484</color>
+
+    <color name="oceanPrimary">#67a</color>
+    <color name="oceanPrimaryDark">#349</color>
+    <color name="oceanAccent">#484</color>
+    <color name="oceanLink">#333</color>
+    <color name="oceanChatBubbleMine">#349</color>
+
+    <color name="skyPrimary">#ccf</color>
+    <color name="skyPrimaryDark">#339</color>
+    <color name="skyAccent">#cc8</color>
+    <color name="skyLink">#e93</color>
+    <color name="skyChatBubbleMine">#aaa</color>
+
+    <color name="olivePrimary">#6b8e23</color>
+    <color name="olivePrimaryDark">#556b2f</color>
+    <color name="oliveAccent">#cc8</color>
+    <color name="oliveLink">#e93</color>
+    <color name="oliveChatBubbleMine">#636</color>
+
 </resources>

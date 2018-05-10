@@ -1,5 +1,10 @@
 <resources>
 
+    <style name="WindowAnimationTransition">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -9,6 +14,7 @@
         <item name="textColorLink">@color/colorLink</item>
         <item name="chatBubbleMine">@color/chatBubbleMine</item>
         <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -27,6 +33,7 @@
         <item name="textColorLink">@color/retroLink</item>
         <item name="chatBubbleMine">@color/retroChatBubbleMine</item>
         <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
     </style>
     <style name="Retro.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -41,8 +48,53 @@
         <item name="textColorLink">@color/pizzaLink</item>
         <item name="chatBubbleMine">@color/pizzaChatBubbleMine</item>
         <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
     </style>
     <style name="Pizza.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Ocean" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/oceanPrimary</item>
+        <item name="colorPrimaryDark">@color/oceanPrimaryDark</item>
+        <item name="colorAccent">@color/oceanAccent</item>
+        <item name="textColorLink">@color/oceanLink</item>
+        <item name="chatBubbleMine">@color/oceanChatBubbleMine</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+    </style>
+    <style name="Ocean.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Sky" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/skyPrimary</item>
+        <item name="colorPrimaryDark">@color/skyPrimaryDark</item>
+        <item name="colorAccent">@color/skyAccent</item>
+        <item name="textColorLink">@color/skyLink</item>
+        <item name="chatBubbleMine">@color/skyChatBubbleMine</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+    </style>
+    <style name="Sky.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Olive" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/olivePrimary</item>
+        <item name="colorPrimaryDark">@color/olivePrimaryDark</item>
+        <item name="colorAccent">@color/oliveAccent</item>
+        <item name="textColorLink">@color/oliveLink</item>
+        <item name="chatBubbleMine">@color/oliveChatBubbleMine</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+    <style name="Olive.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

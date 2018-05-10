@@ -78,6 +78,21 @@ public class SettingsActivity extends AppCompatActivity {
                             ThemeService.setThemeNoActionBar(a, R.style.Pizza_NoActionBar);
                             setTheme(R.style.Pizza);
                             break;
+                        case "Ocean":
+                            ThemeService.setTheme(a, R.style.Ocean);
+                            ThemeService.setThemeNoActionBar(a, R.style.Ocean_NoActionBar);
+                            setTheme(R.style.Ocean);
+                            break;
+                        case "Sky":
+                            ThemeService.setTheme(a, R.style.Sky);
+                            ThemeService.setThemeNoActionBar(a, R.style.Sky_NoActionBar);
+                            setTheme(R.style.Sky);
+                            break;
+                        case "Olive":
+                            ThemeService.setTheme(a, R.style.Olive);
+                            ThemeService.setThemeNoActionBar(a, R.style.Olive_NoActionBar);
+                            setTheme(R.style.Olive);
+                            break;
                     }
                     recreate();
                 }
