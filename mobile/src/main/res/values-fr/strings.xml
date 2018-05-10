@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_settings">Paramètres</string>
+    <string name="unable_to_pick_file">" Impossible de sélectionner le fichier. Essayez à nouveau ou essayez un fichier différent."</string>
+    <string name="search_title">Chercher</string>
+    <string name="search_hint">" Nom ou numéro du contact"</string>
+    <string name="you">Toi</string>
+    <string name="select_theme">" Sélectionne un thème"</string>
+</resources>

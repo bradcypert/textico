@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_settings">Configuraciones</string>
+    <string name="unable_to_pick_file">No se puede seleccionar el archivo. Inténtalo de nuevo o prueba con un archivo diferente.</string>
+    <string name="search_title">Buscar</string>
+    <string name="search_hint">Nombre o número de contacto</string>
+    <string name="you">Tú</string>
+    <string name="select_theme">Seleccione el tema</string>
+</resources>

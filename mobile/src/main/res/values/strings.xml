@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Textico</string>
+    <string name="app_name" translatable="false">Textico</string>
     <string name="action_settings">Settings</string>
     <string-array name="filter_options">
         <item>All</item>
