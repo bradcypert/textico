@@ -23,9 +23,9 @@ import com.bradcypert.textico.adapters.ConversationDetailsAdapter;
 import com.bradcypert.textico.models.Contact;
 import com.bradcypert.textico.models.MMS;
 import com.bradcypert.textico.models.SMS;
-import com.bradcypert.textico.services.ContactsService;
 import com.bradcypert.textico.services.MMSService;
 import com.bradcypert.textico.services.MessageService;
+import com.bradcypert.textico.services.ThemeService;
 import com.klinker.android.send_message.Message;
 import com.klinker.android.send_message.Settings;
 import com.klinker.android.send_message.Transaction;
@@ -56,6 +56,7 @@ public class ConversationDetails extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(ThemeService.getSelectedTheme(this, true));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_details);
 

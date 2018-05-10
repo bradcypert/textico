@@ -35,6 +35,7 @@ import com.bradcypert.textico.itemtouch.callbacks.SwipeToDeleteCallback;
 import com.bradcypert.textico.models.SMS;
 import com.bradcypert.textico.recycler.item.decorators.VerticalSpaceItemDecorator;
 import com.bradcypert.textico.services.MessageService;
+import com.bradcypert.textico.services.ThemeService;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -49,6 +50,7 @@ public class MessageList extends AppCompatActivity {
     private ArrayList<SMS> messages;
     private MessageListAdapter adapter;
     private Filter filter;
+    private String initialTheme;
     private boolean isListenerRegistered = false;
     private BroadcastReceiver listener = new BroadcastReceiver(){
       @Override
@@ -72,8 +74,10 @@ public class MessageList extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(ThemeService.getSelectedTheme(this, false));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
+        this.initialTheme = ThemeService.getThemeName(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -202,15 +206,23 @@ public class MessageList extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        setupWatcher();
+        if (!this.initialTheme.equals(ThemeService.getThemeName(this))) {
+//            if (listener != null && isListenerRegistered) {
+//                unregisterReceiver(listener);
+//            }
+            recreate();
+        }
+//        else {
+//            setupWatcher();
+//        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (listener != null && isListenerRegistered) {
-            unregisterReceiver(listener);
-        }
+//        if (listener != null && isListenerRegistered) {
+//            unregisterReceiver(listener);
+//        }
     }
 
     @Override

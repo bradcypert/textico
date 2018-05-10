@@ -7,10 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.bradcypert.textico.services.ThemeService;
+
 public class SearchResultsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(ThemeService.getSelectedTheme(this, true));
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_results);
         handleIntent(getIntent());
