@@ -30,9 +30,8 @@ class ConversationHolder(private val context: Context, itemView: View) : Recycle
     private var bodyView: TextView = itemView.findViewById(R.id.message_body)
     private var timestampView: TextView = itemView.findViewById(R.id.timestamp)
     private var contactImage: ImageView = itemView.findViewById(R.id.contact_image)
-
     private var hostActivity: Activity? = null
-    lateinit var contact: Contact
+    private var contact: Contact? = null
     lateinit var message: SMS
 
     init {
@@ -40,18 +39,18 @@ class ConversationHolder(private val context: Context, itemView: View) : Recycle
         itemView.setOnClickListener(this)
     }
 
-    fun bindSMS(message: SMS, host: Activity, contact: Contact) {
+    fun bindSMS(message: SMS, host: Activity, contact: Contact?) {
         this.contact = contact
         this.message = message
 
-        if (this.contact.name != null) {
-            this.numberView.text = contact.name
+        if (this.contact?.name != null) {
+            this.numberView.text = contact!!.name
         } else {
             this.numberView.text = message.number
         }
 
-        if (this.contact.picUri != null) {
-            Picasso.get().load(contact.picUri).placeholder(R.mipmap.empty_portait).into(this.contactImage)
+        if (this.contact?.picUri != null) {
+            Picasso.get().load(contact!!.picUri).placeholder(R.mipmap.empty_portait).into(this.contactImage)
         } else {
             Picasso.get().load(R.mipmap.empty_portait).into(this.contactImage)
         }
@@ -69,8 +68,8 @@ class ConversationHolder(private val context: Context, itemView: View) : Recycle
         val intent = Intent(this.context, ConversationDetails::class.java)
         intent.putExtra(ConversationDetails.KEY, this.message.number)
         intent.putExtra(ConversationDetails.THREAD_ID, this.message.threadId)
-        intent.putExtra(ConversationDetails.CONTACT_PICTURE, this.contact.picUri)
-        intent.putExtra(ConversationDetails.CONTACT_NAME, this.contact.name)
+        intent.putExtra(ConversationDetails.CONTACT_PICTURE, this.contact?.picUri)
+        intent.putExtra(ConversationDetails.CONTACT_NAME, this.contact?.name)
         this.hostActivity!!.startActivity(intent)
     }
 }
