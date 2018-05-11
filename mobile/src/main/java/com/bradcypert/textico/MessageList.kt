@@ -37,25 +37,25 @@ import java.util.*
 
 class MessageList : AppCompatActivity() {
     private var timer: Timer? = null
-    private var messages: ArrayList<SMS>? = null
+    private var messages: ArrayList<SMS> = ArrayList()
     private var adapter: MessageListAdapter? = null
     private var filter: Filter? = null
     private var initialTheme: String? = null
     private var isListenerRegistered = false
     private val listener = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            messages!!.clear()
+            messages.clear()
             if (filter == Filter.all) {
-                messages!!.addAll(MessageService.getConversations(contentResolver))
+                messages.addAll(MessageService.getConversations(contentResolver))
             } else {
-                messages!!.addAll(MessageService.getConversations(contentResolver, MessageService.MessageStatus.UNREAD))
+                messages.addAll(MessageService.getConversations(contentResolver, MessageService.MessageStatus.UNREAD))
             }
 
-            refreshMessageList(messages!!)
+            refreshMessageList(messages)
         }
     }
 
-    private var fab: FloatingActionButton? = null
+    private lateinit var fab: FloatingActionButton
 
     private enum class Filter {
         all, unread
@@ -83,7 +83,7 @@ class MessageList : AppCompatActivity() {
     private fun setupFab() {
         val a = this
         fab = findViewById(R.id.fab)
-        fab!!.setOnClickListener {
+        fab.setOnClickListener {
             val intent = Intent(baseContext, ComposeActivity::class.java)
             startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(a).toBundle())
         }
@@ -159,7 +159,7 @@ class MessageList : AppCompatActivity() {
     private fun setupMessageList() {
         if (ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             messages = MessageService.getConversations(this.contentResolver)
-            refreshMessageList(messages!!)
+            refreshMessageList(messages)
         } else {
             ActivityCompat.requestPermissions(
                     this@MessageList,
@@ -173,8 +173,8 @@ class MessageList : AppCompatActivity() {
     public override fun onDestroy() {
         super.onDestroy()
         if (timer != null) {
-            timer!!.cancel()
-            timer!!.purge()
+            timer?.cancel()
+            timer?.purge()
             timer = null
         }
     }
@@ -236,6 +236,6 @@ class MessageList : AppCompatActivity() {
     }
 
     companion object {
-        private val REQUEST_CODE_ASK_PERMISSIONS = 123
+        private const val REQUEST_CODE_ASK_PERMISSIONS = 123
     }
 }

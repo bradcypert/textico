@@ -20,22 +20,22 @@ object MessageService {
         UNREAD
     }
 
-    private fun getAllCursor(contentResolver: ContentResolver): Cursor? {
+    private fun getAllCursor(contentResolver: ContentResolver): Cursor {
         return contentResolver.query(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI, null, null, null, SORT_DATE_DESC)
     }
 
-    private fun getUnreadCursor(contentResolver: ContentResolver): Cursor? {
+    private fun getUnreadCursor(contentResolver: ContentResolver): Cursor {
         return contentResolver.query(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI, null, UNREAD, null, SORT_DATE_DESC)
     }
 
-    private fun getConversationDetailsCursor(contentResolver: ContentResolver, number: String): Cursor? {
+    private fun getConversationDetailsCursor(contentResolver: ContentResolver, number: String): Cursor {
         return contentResolver.query(Telephony.Sms.CONTENT_URI, null, "address=$number", null, SORT_DATE_ASC)
     }
 
     fun getConversations(contentResolver: ContentResolver): ArrayList<SMS> {
         val messages = ArrayList<SMS>()
         val inboxCursor = getAllCursor(contentResolver)
-        inboxCursor!!.moveToFirst()
+        inboxCursor.moveToFirst()
 
         while (!inboxCursor.isAfterLast) {
             try {
@@ -53,12 +53,9 @@ object MessageService {
 
     fun getConversations(contentResolver: ContentResolver, filter: MessageStatus): ArrayList<SMS> {
         val messages = ArrayList<SMS>()
-        var inboxCursor: Cursor? = null
-        if (filter == MessageStatus.UNREAD) {
-            inboxCursor = getUnreadCursor(contentResolver)
-        }
+        val inboxCursor: Cursor = if (filter == MessageStatus.UNREAD) getUnreadCursor(contentResolver) else getAllCursor(contentResolver)
 
-        inboxCursor!!.moveToFirst()
+        inboxCursor.moveToFirst()
 
         while (!inboxCursor.isAfterLast) {
             try {
@@ -77,7 +74,7 @@ object MessageService {
     fun getConversationDetails(contentResolver: ContentResolver, number: String): ArrayList<SMS> {
         val messages = ArrayList<SMS>()
         val inboxCursor = getConversationDetailsCursor(contentResolver, number)
-        inboxCursor!!.moveToFirst()
+        inboxCursor.moveToFirst()
 
         while (!inboxCursor.isAfterLast) {
             try {

@@ -18,7 +18,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
-
 import com.bradcypert.textico.adapters.ConversationDetailsAdapter
 import com.bradcypert.textico.models.Contact
 import com.bradcypert.textico.models.MMS
@@ -29,16 +28,12 @@ import com.bradcypert.textico.services.ThemeService
 import com.klinker.android.send_message.Message
 import com.klinker.android.send_message.Settings
 import com.klinker.android.send_message.Transaction
-
 import java.io.FileNotFoundException
-import java.util.ArrayList
-import java.util.Collections
-import java.util.Timer
-import java.util.TimerTask
+import java.util.*
 
 class ConversationDetails : AppCompatActivity() {
-    private var smsMessages: ArrayList<SMS>? = null
-    private var mmsMessages: ArrayList<MMS>? = null
+    private var smsMessages: ArrayList<SMS> = ArrayList()
+    private var mmsMessages: ArrayList<MMS> = ArrayList()
     private val messagesForAdapter = ArrayList<com.bradcypert.textico.models.Message>()
     private var adapter: ConversationDetailsAdapter? = null
     private var timer: Timer? = null
@@ -48,22 +43,22 @@ class ConversationDetails : AppCompatActivity() {
     private var sendText: EditText? = null
     private var sendButton: ImageButton? = null
 
-    private val threadIdFromIntent: String?
+    private val threadIdFromIntent: String
         get() {
             val intent = intent
-            return intent.getStringExtra(THREAD_ID)
+            return intent.getStringExtra(THREAD_ID) ?: ""
         }
 
-    private val contactPictureFromIntent: String?
+    private val contactPictureFromIntent: String
         get() {
             val intent = intent
-            return intent.getStringExtra(CONTACT_PICTURE)
+            return intent.getStringExtra(CONTACT_PICTURE) ?: ""
         }
 
-    private val contactNameFromIntent: String?
+    private val contactNameFromIntent: String
         get() {
             val intent = intent
-            return intent.getStringExtra(CONTACT_NAME)
+            return intent.getStringExtra(CONTACT_NAME) ?: ""
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,8 +88,8 @@ class ConversationDetails : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        timer!!.cancel()
-        timer!!.purge()
+        timer?.cancel()
+        timer?.purge()
         timer = null
     }
 
@@ -102,15 +97,15 @@ class ConversationDetails : AppCompatActivity() {
         if (timer == null) {
             timer = Timer()
         }
-        timer!!.scheduleAtFixedRate(object : TimerTask() {
+        timer?.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                val newMMS = MMSService.getAllMmsMessages(baseContext, threadIdFromIntent!!)
+                val newMMS = MMSService.getAllMmsMessages(baseContext, threadIdFromIntent)
                 val newMessages = MessageService.getConversationDetails(contentResolver, getKeyFromIntent(true)!!)
-                if (smsMessages!!.size != newMessages.size || newMMS.size != mmsMessages!!.size) {
-                    smsMessages!!.clear()
-                    mmsMessages!!.clear()
-                    mmsMessages!!.addAll(newMMS)
-                    smsMessages!!.addAll(newMessages)
+                if (smsMessages.size != newMessages.size || newMMS.size != mmsMessages.size) {
+                    smsMessages.clear()
+                    mmsMessages.clear()
+                    mmsMessages.addAll(newMMS)
+                    smsMessages.addAll(newMessages)
                     messagesForAdapter.clear()
                     messagesForAdapter.addAll(newMessages)
                     messagesForAdapter.addAll(newMMS)
@@ -248,8 +243,8 @@ class ConversationDetails : AppCompatActivity() {
         AsyncTask.execute {
             smsMessages = MessageService.getConversationDetails(contentResolver, getKeyFromIntent(true)!!)
             mmsMessages = MMSService.getAllMmsMessages(baseContext, threadIdFromIntent!!)
-            messagesForAdapter.addAll(smsMessages!!)
-            messagesForAdapter.addAll(mmsMessages!!)
+            messagesForAdapter.addAll(smsMessages)
+            messagesForAdapter.addAll(mmsMessages)
             messagesForAdapter.sort()
             adapter = ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messagesForAdapter, currentContact!!)
 
