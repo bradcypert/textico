@@ -103,7 +103,7 @@ class MessageList : AppCompatActivity() {
         filters.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         filterSpinner.adapter = filters
         filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val filterValue = parent.getItemAtPosition(position) as String
                 val messages: ArrayList<SMS>
 
@@ -193,8 +193,8 @@ class MessageList : AppCompatActivity() {
     public override fun onPause() {
         super.onPause()
         if (isListenerRegistered) {
-            unregisterReceiver(listener);
-            isListenerRegistered = false;
+            unregisterReceiver(listener)
+            isListenerRegistered = false
         }
     }
 

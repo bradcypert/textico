@@ -12,25 +12,24 @@ import java.util.ArrayList
 import java.util.Date
 
 object MessageService {
-    private val NONEMPTY = "body IS NOT NULL AND body != ''"
-    private val UNREAD = "read = 0"
-    private val SORT_DATE_DESC = "date desc"
-    private val SORT_DATE_ASC = "date asc"
+    private const val UNREAD = "read = 0"
+    private const val SORT_DATE_DESC = "date desc"
+    private const val SORT_DATE_ASC = "date asc"
 
     enum class MessageStatus {
         UNREAD
     }
 
     private fun getAllCursor(contentResolver: ContentResolver): Cursor? {
-        return contentResolver.query(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI, null, NONEMPTY, null, SORT_DATE_DESC)
+        return contentResolver.query(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI, null, null, null, SORT_DATE_DESC)
     }
 
     private fun getUnreadCursor(contentResolver: ContentResolver): Cursor? {
-        return contentResolver.query(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI, null, "$NONEMPTY AND $UNREAD", null, SORT_DATE_DESC)
+        return contentResolver.query(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI, null, UNREAD, null, SORT_DATE_DESC)
     }
 
     private fun getConversationDetailsCursor(contentResolver: ContentResolver, number: String): Cursor? {
-        return contentResolver.query(Telephony.Sms.CONTENT_URI, null, "$NONEMPTY AND address=$number", null, SORT_DATE_ASC)
+        return contentResolver.query(Telephony.Sms.CONTENT_URI, null, "address=$number", null, SORT_DATE_ASC)
     }
 
     fun getConversations(contentResolver: ContentResolver): ArrayList<SMS> {
