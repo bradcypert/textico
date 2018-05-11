@@ -50,7 +50,8 @@ class MessageList : AppCompatActivity() {
             } else {
                 messages!!.addAll(MessageService.getConversations(contentResolver, MessageService.MessageStatus.UNREAD))
             }
-            runOnUiThread { adapter!!.notifyDataSetChanged() }
+
+            refreshMessageList(messages!!)
         }
     }
 
@@ -76,6 +77,7 @@ class MessageList : AppCompatActivity() {
         setupMessageFilters()
         setupMessageList()
         setupFab()
+        setupWatcher()
     }
 
     private fun setupFab() {
@@ -182,22 +184,18 @@ class MessageList : AppCompatActivity() {
             val intent = Intent(this, this.javaClass)
             startActivity(intent)
             finish()
+        } else {
+            setupWatcher()
         }
         super.onResume()
-        //        else {
-        //            setupWatcher();
-        //        }
     }
 
     public override fun onPause() {
         super.onPause()
-        //        if (listener != null && isListenerRegistered) {
-        //            unregisterReceiver(listener);
-        //        }
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
+        if (isListenerRegistered) {
+            unregisterReceiver(listener);
+            isListenerRegistered = false;
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
