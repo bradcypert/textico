@@ -13,8 +13,8 @@ import java.util.Date
 
 object MessageService {
     private const val UNREAD = "read = 0"
-    private const val SORT_DATE_DESC = "date desc"
-    private const val SORT_DATE_ASC = "date asc"
+    private const val SORT_DATE_DESC = "${Telephony.TextBasedSmsColumns.DATE} desc"
+    private const val SORT_DATE_ASC = "${Telephony.TextBasedSmsColumns.DATE} asc"
 
     enum class MessageStatus {
         UNREAD
