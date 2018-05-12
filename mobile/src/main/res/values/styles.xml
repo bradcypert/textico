@@ -99,4 +99,23 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Midnight" parent="AppTheme">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/midnightPrimary</item>
+        <item name="colorPrimaryDark">@color/midnightPrimaryDark</item>
+        <item name="colorAccent">@color/midnightAccent</item>
+        <item name="textColorLink">@color/midnightLink</item>
+        <item name="chatBubbleMine">@color/midnightChatBubbleMine</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:background">@color/midnightBackground</item>
+        <item name="android:windowBackground">@color/midnightBackground</item>
+        <item name="android:colorBackground">@color/midnightBackground</item>
+        <item name="android:navigationBarColor">@color/midnightBackground</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="Midnight.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
 </resources>

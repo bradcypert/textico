@@ -36,4 +36,11 @@
     <color name="oliveLink">#e93</color>
     <color name="oliveChatBubbleMine">#636</color>
 
+    <color name="midnightPrimary">#b3e3f4</color>
+    <color name="midnightPrimaryDark">#230745</color>
+    <color name="midnightAccent">#e3e3ff</color>
+    <color name="midnightLink">#d6fffb</color>
+    <color name="midnightChatBubbleMine">#020b36</color>
+    <color name="midnightBackground">#020b36</color>
+
 </resources>

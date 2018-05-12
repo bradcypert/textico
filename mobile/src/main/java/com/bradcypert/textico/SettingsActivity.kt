@@ -77,6 +77,11 @@ class SettingsActivity : AppCompatActivity() {
                             ThemeService.setThemeNoActionBar(a, R.style.Olive_NoActionBar)
                             setTheme(R.style.Olive)
                         }
+                        "Midnight" -> {
+                            ThemeService.setTheme(a, R.style.Midnight)
+                            ThemeService.setThemeNoActionBar(a, R.style.Midnight_NoActionBar)
+                            setTheme(R.style.Midnight)
+                        }
                     }
                     recreate()
                 }

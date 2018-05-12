@@ -104,7 +104,7 @@ class MessageList : AppCompatActivity() {
         filterSpinner.adapter = filters
         filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val filterValue = parent.getItemAtPosition(position) as String
+                val filterValue = if (position > 0) parent.getItemAtPosition(position) as String else ""
                 val messages: ArrayList<SMS>
 
                 if (filterValue == "Unread") {
@@ -158,11 +158,15 @@ class MessageList : AppCompatActivity() {
 
     private fun setupMessageList() {
         if (ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            messages = MessageService.getConversations(this.contentResolver)
-            refreshMessageList(messages)
+            try {
+                messages = MessageService.getConversations(this.contentResolver)
+                refreshMessageList(messages)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         } else {
             ActivityCompat.requestPermissions(
-                    this@MessageList,
+                    this,
                     arrayOf(android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_CONTACTS),
                     REQUEST_CODE_ASK_PERMISSIONS
             )

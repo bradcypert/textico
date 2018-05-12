@@ -54,8 +54,8 @@ class SMS private constructor(number: String?, body: String?, timestamp: Date?, 
 
         @Throws(Exception::class)
         fun build(): SMS {
-            return if (this.number == null || this.body == null || this.timestamp == null) {
-                throw Exception("Required fields for builder not met: Number, Body, Timestamp")
+            return if (this.number == null || this.timestamp == null) {
+                throw Exception("Required fields for builder not met: Number, Timestamp: ${this.number} / ${this.timestamp}")
             } else {
                 SMS(number, body, timestamp, id, read, person, sentByMe, threadId)
             }
