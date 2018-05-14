@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "878763023360",
+    "firebase_url": "https://textico-526c5.firebaseio.com",
+    "project_id": "textico-526c5",
+    "storage_bucket": "textico-526c5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878763023360:android:24cd99849068cd3c",
+        "android_client_info": {
+          "package_name": "com.bradcypert.textico"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "878763023360-d1ai2jhkvenu3g36vl8ln02ld5qm295s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bradcypert.textico",
+            "certificate_hash": "3d03120985b5bd95f5cfaf311a9e20bdd74a42bd"
+          }
+        },
+        {
+          "client_id": "878763023360-vi690ubgafjpqkoil6e7nvou1kan935h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzozeUdh4D72NPg9TYWZg-o8082usDZuw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878763023360-vi690ubgafjpqkoil6e7nvou1kan935h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

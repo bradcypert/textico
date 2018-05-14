@@ -31,7 +31,4 @@ class ComposeActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-    }
 }

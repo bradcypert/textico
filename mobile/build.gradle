@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'io.fabric'
+apply plugin: 'realm-android'
 
 android {
     compileSdkVersion 27
@@ -8,8 +10,8 @@ android {
         applicationId "com.bradcypert.textico"
         minSdkVersion 24
         targetSdkVersion 27
-        versionCode 8
-        versionName "1.4.4"
+        versionCode 10
+        versionName "1.6.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -32,6 +34,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.google.firebase:firebase-crash:15.0.2'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -45,8 +48,12 @@ dependencies {
     implementation 'com.klinkerapps:android-smsmms:5.0.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.2'
+    implementation 'com.google.firebase:firebase-core:15.0.2'
     testImplementation 'junit:junit:4.12'
 }
 repositories {
     mavenCentral()
 }
+
+apply plugin: 'com.google.gms.google-services'

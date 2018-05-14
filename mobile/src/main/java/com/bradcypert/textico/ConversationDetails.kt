@@ -2,10 +2,12 @@ package com.bradcypert.textico
 
 import android.Manifest
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -13,6 +15,8 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
@@ -86,6 +90,42 @@ class ConversationDetails : AppCompatActivity() {
         }).run()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_conversation_details, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+
+
+        if (id == R.id.action_call) {
+            if (ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                val intent = Intent(Intent.ACTION_CALL)
+                intent.data = Uri.parse("tel:${getKeyFromIntent(true)}")
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+            } else {
+                ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(android.Manifest.permission.CALL_PHONE),
+                        REQUEST_CODE_ASK_PERMISSIONS
+                )
+                Toast.makeText(applicationContext, "If you granted permission, you can tap the phone icon to try again!", Toast.LENGTH_LONG).show()
+            }
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    fun viewContact(contactUri: Uri) {
+        val intent = Intent(Intent.ACTION_VIEW, contactUri)
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         timer?.cancel()
@@ -110,7 +150,11 @@ class ConversationDetails : AppCompatActivity() {
                     messagesForAdapter.addAll(newMessages)
                     messagesForAdapter.addAll(newMMS)
                     messagesForAdapter.sort()
-                    runOnUiThread { adapter!!.notifyDataSetChanged() }
+                    runOnUiThread {
+                        if (adapter != null) {
+                            adapter!!.notifyDataSetChanged()
+                        }
+                    }
                 }
             }
         }, 250, 3000)
@@ -242,17 +286,17 @@ class ConversationDetails : AppCompatActivity() {
         val activity = this
         AsyncTask.execute {
             smsMessages = MessageService.getConversationDetails(contentResolver, getKeyFromIntent(true)!!)
-            mmsMessages = MMSService.getAllMmsMessages(baseContext, threadIdFromIntent!!)
+            mmsMessages = MMSService.getAllMmsMessages(baseContext, threadIdFromIntent)
             messagesForAdapter.addAll(smsMessages)
             messagesForAdapter.addAll(mmsMessages)
             messagesForAdapter.sort()
             adapter = ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messagesForAdapter, currentContact!!)
 
             runOnUiThread {
-                if (currentContact!!.name != null) {
-                    title = currentContact!!.name
+                title = if (currentContact!!.name != null && !currentContact!!.name.equals("")) {
+                    currentContact!!.name
                 } else {
-                    title = getKeyFromIntent(false)
+                    getKeyFromIntent(false)
                 }
                 messageList!!.adapter = adapter
                 messageList!!.layoutManager = LinearLayoutManager(activity)

@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 import android.provider.Telephony
+import com.android.internal.telephony.SmsConstants
 
 import com.bradcypert.textico.models.SMS
 
@@ -21,11 +22,29 @@ object MessageService {
     }
 
     private fun getAllCursor(contentResolver: ContentResolver): Cursor {
-        return contentResolver.query(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI, null, null, null, SORT_DATE_DESC)
+        val uri = Telephony.MmsSms.CONTENT_CONVERSATIONS_URI.buildUpon().appendQueryParameter("simple", "false").build()
+        val projection = arrayOf("_id",
+                                 Telephony.TextBasedSmsColumns.ADDRESS,
+                                 Telephony.TextBasedSmsColumns.BODY,
+                                 Telephony.TextBasedSmsColumns.DATE,
+                                 Telephony.TextBasedSmsColumns.DATE_SENT,
+                                 Telephony.TextBasedSmsColumns.THREAD_ID,
+                                 Telephony.TextBasedSmsColumns.READ,
+                                 Telephony.TextBasedSmsColumns.PERSON)
+        return contentResolver.query(uri, projection, null, null, SORT_DATE_DESC)
     }
 
     private fun getUnreadCursor(contentResolver: ContentResolver): Cursor {
-        return contentResolver.query(Telephony.MmsSms.CONTENT_CONVERSATIONS_URI, null, UNREAD, null, SORT_DATE_DESC)
+        val uri = Telephony.MmsSms.CONTENT_CONVERSATIONS_URI.buildUpon().appendQueryParameter("simple", "false").build()
+        val projection = arrayOf("_id",
+                Telephony.TextBasedSmsColumns.ADDRESS,
+                Telephony.TextBasedSmsColumns.BODY,
+                Telephony.TextBasedSmsColumns.DATE,
+                Telephony.TextBasedSmsColumns.DATE_SENT,
+                Telephony.TextBasedSmsColumns.THREAD_ID,
+                Telephony.TextBasedSmsColumns.READ,
+                Telephony.TextBasedSmsColumns.PERSON)
+        return contentResolver.query(uri, projection, UNREAD, null, SORT_DATE_DESC)
     }
 
     private fun getConversationDetailsCursor(contentResolver: ContentResolver, number: String): Cursor {

@@ -18,4 +18,5 @@
     <string name="search_hint">Contact name or number</string>
     <string name="you">You</string>
     <string name="select_theme">Select Theme</string>
+    <string name="call">Call</string>
 </resources>

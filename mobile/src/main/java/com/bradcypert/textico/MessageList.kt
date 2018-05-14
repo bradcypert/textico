@@ -44,15 +44,19 @@ class MessageList : AppCompatActivity() {
     private var isListenerRegistered = false
     private val listener = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            messages.clear()
-            if (filter == Filter.all) {
-                messages.addAll(MessageService.getConversations(contentResolver))
-            } else {
-                messages.addAll(MessageService.getConversations(contentResolver, MessageService.MessageStatus.UNREAD))
-            }
-
-            refreshMessageList(messages)
+            refreshMessages()
         }
+    }
+
+    fun refreshMessages() {
+        messages.clear()
+        if (filter == Filter.all) {
+            messages.addAll(MessageService.getConversations(contentResolver))
+        } else {
+            messages.addAll(MessageService.getConversations(contentResolver, MessageService.MessageStatus.UNREAD))
+        }
+
+        refreshMessageList(messages)
     }
 
     private lateinit var fab: FloatingActionButton
