@@ -36,7 +36,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ConversationDetails">
+        <activity android:name=".ConversationDetails"
+            android:parentActivityName="com.bradcypert.textico.MessageList">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SENDTO" />
@@ -65,7 +66,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ComposeActivity" >
+        <activity android:name=".ComposeActivity" android:parentActivityName="com.bradcypert.textico.MessageList" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SENDTO" />
@@ -77,8 +78,8 @@
                 <data android:scheme="mmsto" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity" />
-        <activity android:name=".SearchResultsActivity">
+        <activity android:name=".SettingsActivity" android:parentActivityName="com.bradcypert.textico.MessageList" />
+        <activity android:name=".SearchResultsActivity" android:parentActivityName="com.bradcypert.textico.MessageList">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
