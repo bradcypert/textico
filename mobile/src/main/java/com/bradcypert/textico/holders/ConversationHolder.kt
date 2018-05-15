@@ -1,24 +1,18 @@
 package com.bradcypert.textico.holders
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.support.v7.widget.RecyclerView
-import android.transition.Explode
-import android.transition.Fade
-import android.transition.Slide
-import android.util.Pair
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 
-import com.bradcypert.textico.ConversationDetails
+import com.bradcypert.textico.views.ConversationDetails
 import com.bradcypert.textico.R
 import com.bradcypert.textico.models.Contact
+import com.bradcypert.textico.models.Message
 import com.bradcypert.textico.models.SMS
-import com.bradcypert.textico.services.ContactsService
 import com.squareup.picasso.Picasso
 
 import java.text.SimpleDateFormat
@@ -32,14 +26,14 @@ class ConversationHolder(private val context: Context, itemView: View) : Recycle
     private var contactImage: ImageView = itemView.findViewById(R.id.contact_image)
     private var hostActivity: Activity? = null
     private var contact: Contact? = null
-    lateinit var message: SMS
+    lateinit var message: Message
 
     init {
 
         itemView.setOnClickListener(this)
     }
 
-    fun bindSMS(message: SMS, host: Activity, contact: Contact?) {
+    fun bindMessage(message: Message, host: Activity, contact: Contact?) {
         this.contact = contact
         this.message = message
 

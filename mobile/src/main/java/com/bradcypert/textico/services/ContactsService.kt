@@ -17,17 +17,13 @@ object ContactsService {
 
     private fun buildContactFromCursor(c: Cursor): Contact {
         return if (c.count != 0) {
-            Contact.ContactBuilder()
-                    .setName(c.getString(c.getColumnIndex("DISPLAY_NAME")))
-                    .setPicUri(c.getString(c.getColumnIndex("PHOTO_URI")))
-                    .setStarred(c.getString(c.getColumnIndex("STARRED")) == "1")
-                    .build()
+            Contact(name = c.getString(c.getColumnIndex("DISPLAY_NAME")),
+                    picUri = c.getString(c.getColumnIndex("PHOTO_URI")),
+                    isStarred = c.getString(c.getColumnIndex("STARRED")) == "1")
         } else {
-            Contact.ContactBuilder()
-                    .setName(null)
-                    .setPicUri(null)
-                    .setStarred(false)
-                    .build()
+            Contact(name = null,
+                    picUri = null,
+                    isStarred = false)
         }
     }
 

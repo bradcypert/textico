@@ -19,4 +19,5 @@
     <string name="you">You</string>
     <string name="select_theme">Select Theme</string>
     <string name="call">Call</string>
+    <string name="rebuild_database">Rebuild Database</string>
 </resources>

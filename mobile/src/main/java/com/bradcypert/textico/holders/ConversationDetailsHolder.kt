@@ -1,10 +1,6 @@
 package com.bradcypert.textico.holders
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
@@ -12,18 +8,12 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 
-import com.bradcypert.textico.ConversationDetails
 import com.bradcypert.textico.R
 import com.bradcypert.textico.models.Contact
 import com.bradcypert.textico.models.MMS
 import com.bradcypert.textico.models.Message
-import com.bradcypert.textico.models.SMS
-import com.bradcypert.textico.services.ContactsService
-import com.bradcypert.textico.services.MMSService
+import com.bradcypert.textico.repositories.MMSRepository
 import com.squareup.picasso.Picasso
-
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class ConversationDetailsHolder(private val context: Context, itemView: View, var contact: Contact) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
 
@@ -57,7 +47,7 @@ class ConversationDetailsHolder(private val context: Context, itemView: View, va
             this.mmsImage.visibility = View.VISIBLE
             val m = message as MMS
             Thread(Runnable {
-                val bmp = MMSService.getMmsImage(context, m.id)
+                val bmp = MMSRepository.getMmsImage(context, m.id)
                 mmsImage.setImageBitmap(bmp)
             }).run()
         }

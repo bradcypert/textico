@@ -4,12 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 
 import com.bradcypert.textico.holders.ConversationHolder
 import com.bradcypert.textico.models.Contact
-import com.bradcypert.textico.models.SMS
+import com.bradcypert.textico.models.Message
 import com.bradcypert.textico.services.ContactsService
 
 import java.util.ArrayList
@@ -19,8 +18,8 @@ import java.util.HashMap
  * Created by bradc on 3/11/2017.
  */
 
-class MessageListAdapter(private val context: Context, private val itemResource: Int, private val messages: ArrayList<SMS>, private val host: Activity) : RecyclerView.Adapter<ConversationHolder>(), SearchAndRemove {
-    private val rootMessages: ArrayList<SMS> = ArrayList(messages)
+class MessageListAdapter(private val context: Context, private val itemResource: Int, private val messages: ArrayList<Message>, private val host: Activity) : RecyclerView.Adapter<ConversationHolder>(), SearchAndRemove {
+    private val rootMessages: ArrayList<Message> = ArrayList(messages)
     private val contactsByNumber = HashMap<String?, Contact>()
 
     init {
@@ -42,7 +41,7 @@ class MessageListAdapter(private val context: Context, private val itemResource:
     // 4. Override the onBindViewHolder method
     override fun onBindViewHolder(holder: ConversationHolder, position: Int) {
         val message = this.messages[position]
-        holder.bindSMS(message, this.host, contactsByNumber.get(message.number))
+        holder.bindMessage(message, this.host, contactsByNumber.get(message.number))
     }
 
     override fun getItemCount(): Int {
@@ -59,10 +58,10 @@ class MessageListAdapter(private val context: Context, private val itemResource:
         if (query == "") {
             messages.addAll(rootMessages)
         } else {
-            val filtered = ArrayList<SMS>()
+            val filtered = ArrayList<Message>()
             for (message in rootMessages) {
                 val contact = contactsByNumber[message.number]
-                if (message.number!!.contains(query) || contact?.name != null && contact.name!!.toLowerCase().contains(query.toLowerCase())) {
+                if (message.number!!.contains(query) || contact?.name != null && contact.name.toLowerCase().contains(query.toLowerCase())) {
                     filtered.add(message)
                 }
             }

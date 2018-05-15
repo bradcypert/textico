@@ -16,10 +16,10 @@ import android.os.Build
 import android.provider.MediaStore
 import android.provider.Telephony
 import android.telephony.SmsMessage
-import com.bradcypert.textico.ConversationDetails
+import com.bradcypert.textico.views.ConversationDetails
 import com.bradcypert.textico.R
 import com.bradcypert.textico.services.ContactsService
-import com.bradcypert.textico.services.MessageService
+import com.bradcypert.textico.repositories.SMSRepository
 
 class SmsListener : BroadcastReceiver() {
 
@@ -107,7 +107,7 @@ class SmsListener : BroadcastReceiver() {
         openIntent.putExtra(ConversationDetails.KEY, phoneNumber)
         openIntent.putExtra(ConversationDetails.CONTACT_NAME, contact.name)
         openIntent.putExtra(ConversationDetails.CONTACT_PICTURE, contact.picUri)
-        val convoDetails = MessageService.getConversationDetails(context.contentResolver, phoneNumber)
+        val convoDetails = SMSRepository.getConversationDetails(context.contentResolver, phoneNumber)
         if (convoDetails.isNotEmpty()) {
             openIntent.putExtra(ConversationDetails.THREAD_ID, convoDetails[0].threadId)
         } else {

@@ -1,4 +1,4 @@
-package com.bradcypert.textico.services
+package com.bradcypert.textico.repositories
 
 import android.content.ContentResolver
 import android.content.Context
@@ -15,7 +15,7 @@ import java.io.InputStream
 import java.util.ArrayList
 import java.util.Date
 
-object MMSService {
+object MMSRepository {
     private val SORT_DATE_ASC = "date asc"
 
     private fun getConversationMMSDetailsCursor(contentResolver: ContentResolver, threadId: String): Cursor? {
@@ -26,7 +26,7 @@ object MMSService {
         val mms = ArrayList<MMS>()
 
         Thread(Runnable {
-            val cursor = MMSService.getConversationMMSDetailsCursor(context.contentResolver, threadId)
+            val cursor = getConversationMMSDetailsCursor(context.contentResolver, threadId)
             try {
                 cursor!!.moveToFirst()
 
@@ -143,24 +143,22 @@ object MMSService {
         }
 
         val id = cursor.getInt(cursor.getColumnIndex(Telephony.Mms._ID))
-        //        String mmsId = cursor.getString(cursor.getColumnIndex(Telephony.Mms.MESSAGE_ID));
         val threadId = cursor.getInt(cursor.getColumnIndex(Telephony.Mms.THREAD_ID))
         val address = getAddressOfMMS(context, id)
         val part = getPartOfMMS(context, id)
         val message = getMmsText(context, id)
         val type = getMmsType(context, id)
-        return MMS.MMSBuilder()
-                .setBody(message)
-                .setId(id)
-                .setThreadId(threadId.toString())
-                .setTimestamp(Date(date * 1000L))
-                .setType(type)
-                .setNumber(address)
-                .setRead(cursor.getString(cursor.getColumnIndex(Telephony.Mms.READ)))
-                .setSentByMe(cursor.getString(cursor.getColumnIndex(Telephony.Mms.DATE_SENT)) == "0")
-                .setPart(part)
-                //                .setImage(getMmsImage(context, id))
-                .build()
+        return MMS(body = message,
+                    id = id,
+                    threadId = threadId.toString(),
+                    timestamp = Date(date*1000L),
+                    type = type,
+                    number = address,
+                    read = cursor.getString(cursor.getColumnIndex(Telephony.Mms.READ)) == "1",
+                    sentByMe = cursor.getString(cursor.getColumnIndex(Telephony.Mms.DATE_SENT)) == "0",
+                    part = part,
+                    person = null,
+                    sender = null)
     }
 
     fun getMmsImage(context: Context, id: Int): Bitmap? {

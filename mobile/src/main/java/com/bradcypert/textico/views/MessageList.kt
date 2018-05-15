@@ -1,4 +1,4 @@
-package com.bradcypert.textico
+package com.bradcypert.textico.views
 
 import android.app.ActivityOptions
 import android.app.SearchManager
@@ -26,18 +26,23 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SearchView
 import android.widget.Spinner
+import com.bradcypert.textico.R
 import com.bradcypert.textico.adapters.MessageListAdapter
 import com.bradcypert.textico.adapters.SearchAndRemove
 import com.bradcypert.textico.itemtouch.callbacks.SwipeToDeleteCallback
+import com.bradcypert.textico.models.Message
 import com.bradcypert.textico.models.SMS
 import com.bradcypert.textico.recycler.item.decorators.VerticalSpaceItemDecorator
-import com.bradcypert.textico.services.MessageService
+import com.bradcypert.textico.repositories.SMSRepository
 import com.bradcypert.textico.services.ThemeService
+import io.realm.Realm
+import io.realm.kotlin.where
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MessageList : AppCompatActivity() {
     private var timer: Timer? = null
-    private var messages: ArrayList<SMS> = ArrayList()
+    private var messages: ArrayList<Message> = ArrayList()
     private var adapter: MessageListAdapter? = null
     private var filter: Filter? = null
     private var initialTheme: String? = null
@@ -49,11 +54,12 @@ class MessageList : AppCompatActivity() {
     }
 
     fun refreshMessages() {
+        val realm = Realm.getDefaultInstance()
         messages.clear()
         if (filter == Filter.all) {
-            messages.addAll(MessageService.getConversations(contentResolver))
+            messages.addAll(realm.where<Message>().sort("timestamp").distinct("threadId").findAll())
         } else {
-            messages.addAll(MessageService.getConversations(contentResolver, MessageService.MessageStatus.UNREAD))
+            messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp").distinct("threadId").findAll())
         }
 
         refreshMessageList(messages)
@@ -109,13 +115,15 @@ class MessageList : AppCompatActivity() {
         filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val filterValue = if (position > 0) parent.getItemAtPosition(position) as String else ""
-                val messages: ArrayList<SMS>
+                val messages: ArrayList<Message> = ArrayList()
+
+                val realm = Realm.getDefaultInstance()
 
                 if (filterValue == "Unread") {
-                    messages = MessageService.getConversations(contentResolver, MessageService.MessageStatus.UNREAD)
+                    messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp").distinct("threadId").findAll())
                     filter = Filter.unread
                 } else {
-                    messages = MessageService.getConversations(contentResolver)
+                    messages.addAll(realm.where<Message>().sort("timestamp").distinct("threadId").findAll())
                     filter = Filter.all
                 }
 
@@ -126,7 +134,7 @@ class MessageList : AppCompatActivity() {
         }
     }
 
-    private fun refreshMessageList(messages: ArrayList<SMS>) {
+    private fun refreshMessageList(messages: ArrayList<Message>) {
         val messageList = findViewById<RecyclerView>(R.id.message_list)
         val a = this
 
@@ -140,7 +148,7 @@ class MessageList : AppCompatActivity() {
                     val pos = viewHolder.adapterPosition
                     if (pos > -1) {
                         try {
-                            MessageService.deleteThreadById(contentResolver, messages[viewHolder.adapterPosition].threadId!!)
+                            SMSRepository.deleteThreadById(contentResolver, messages[viewHolder.adapterPosition].threadId!!)
                             (messageList.adapter as SearchAndRemove).removeItem(pos)
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -163,7 +171,9 @@ class MessageList : AppCompatActivity() {
     private fun setupMessageList() {
         if (ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             try {
-                messages = MessageService.getConversations(this.contentResolver)
+                val realm = Realm.getDefaultInstance()
+                messages.clear()
+                messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp").distinct("threadId").findAll())
                 refreshMessageList(messages)
             } catch (e: Exception) {
                 e.printStackTrace()
