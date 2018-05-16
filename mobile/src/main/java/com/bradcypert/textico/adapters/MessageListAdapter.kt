@@ -10,6 +10,9 @@ import com.bradcypert.textico.holders.ConversationHolder
 import com.bradcypert.textico.models.Contact
 import com.bradcypert.textico.models.Message
 import com.bradcypert.textico.services.ContactsService
+import io.realm.OrderedRealmCollection
+import io.realm.RealmRecyclerViewAdapter
+import io.realm.RealmResults
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -18,7 +21,7 @@ import java.util.HashMap
  * Created by bradc on 3/11/2017.
  */
 
-class MessageListAdapter(private val context: Context, private val itemResource: Int, private val messages: ArrayList<Message>, private val host: Activity) : RecyclerView.Adapter<ConversationHolder>(), SearchAndRemove {
+class MessageListAdapter(private val context: Context, private val itemResource: Int, private val messages: OrderedRealmCollection<Message>, private val host: Activity) : RealmRecyclerViewAdapter<Message,ConversationHolder>(messages, true), SearchAndRemove {
     private val rootMessages: ArrayList<Message> = ArrayList(messages)
     private val contactsByNumber = HashMap<String?, Contact>()
 
@@ -39,7 +42,7 @@ class MessageListAdapter(private val context: Context, private val itemResource:
     // 4. Override the onBindViewHolder method
     override fun onBindViewHolder(holder: ConversationHolder, position: Int) {
         val message = this.messages[position]
-        holder.bindMessage(message, this.host, contactsByNumber[message.number])
+        holder.bindMessage(message!!, this.host, contactsByNumber[message.number])
     }
 
     override fun getItemCount(): Int {

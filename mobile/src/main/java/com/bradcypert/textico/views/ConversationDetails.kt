@@ -23,34 +23,32 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import butterknife.BindView
+import butterknife.ButterKnife
 import com.bradcypert.textico.R
 import com.bradcypert.textico.adapters.ConversationDetailsAdapter
 import com.bradcypert.textico.models.Contact
-import com.bradcypert.textico.models.MMS
-import com.bradcypert.textico.models.SMS
-import com.bradcypert.textico.repositories.MMSRepository
 import com.bradcypert.textico.repositories.SMSRepository
 import com.bradcypert.textico.services.ThemeService
 import com.klinker.android.send_message.Message
 import com.klinker.android.send_message.Settings
 import com.klinker.android.send_message.Transaction
 import io.realm.Realm
+import io.realm.RealmResults
+import io.realm.Sort
 import io.realm.kotlin.where
 import java.io.FileNotFoundException
 import java.util.*
 
 class ConversationDetails : AppCompatActivity() {
-    private var smsMessages: ArrayList<SMS> = ArrayList()
-    private var mmsMessages: ArrayList<MMS> = ArrayList()
-    private val messagesForAdapter = ArrayList<com.bradcypert.textico.models.Message>()
     private var adapter: ConversationDetailsAdapter? = null
-    private var timer: Timer? = null
     private var externalImage: Bitmap? = null
     private var currentContact: Contact? = null
     @BindView(R.id.listView) lateinit var messageList: RecyclerView
     @BindView(R.id.send_text) lateinit var sendText: EditText
     @BindView(R.id.send_button) lateinit var sendButton: ImageButton
-
+    @BindView(R.id.image_button) lateinit var imageButton: ImageButton
+    @BindView(R.id.mmsImage) lateinit var imgv: ImageView
+    @BindView(R.id.remove_image_button) lateinit var removeImageButton: ImageButton
     private val threadIdFromIntent: String
         get() {
             val intent = intent
@@ -73,18 +71,19 @@ class ConversationDetails : AppCompatActivity() {
         setTheme(ThemeService.getSelectedTheme(this, true))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conversation_details)
+        ButterKnife.bind(this)
 
         this.currentContact = Contact(name = contactNameFromIntent, picUri = contactPictureFromIntent)
+
+        setupMessageList()
 
         Thread(Runnable {
             val key = getKeyFromIntent(true)
             if (key != null) {
                 SMSRepository.flagMessageAsRead(contentResolver, key)
             }
-            setupMessageList()
             setupSendButton()
             setupPictureButton()
-            setupWatcher()
         }).run()
     }
 
@@ -117,42 +116,8 @@ class ConversationDetails : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun viewContact(contactUri: Uri) {
-        val intent = Intent(Intent.ACTION_VIEW, contactUri)
-        if (intent.resolveActivity(packageManager) != null) {
-            startActivity(intent)
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        timer?.cancel()
-        timer?.purge()
-        timer = null
-    }
-
-    private fun setupWatcher() {
-        if (timer == null) {
-            timer = Timer()
-        }
-        timer?.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                val realm = Realm.getDefaultInstance()
-                val messages = realm.where<com.bradcypert.textico.models.Message>()
-                        .equalTo("number", getKeyFromIntent(true))
-                        .findAll()
-                messagesForAdapter.addAll(messages)
-                runOnUiThread {
-                    if (adapter != null) {
-                        adapter!!.notifyDataSetChanged()
-                    }
-                }
-            }
-        }, 250, 3000)
-    }
-
     private fun setupPictureButton() {
-        sendButton!!.setOnClickListener {
+        imageButton.setOnClickListener {
             val intent = Intent()
             intent.type = "image/*"
             intent.action = Intent.ACTION_GET_CONTENT
@@ -193,23 +158,28 @@ class ConversationDetails : AppCompatActivity() {
         val sendText = findViewById<EditText>(R.id.send_text)
         if (ContextCompat.checkSelfPermission(baseContext, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
 
-            AsyncTask.execute {
-                val sendSettings = Settings()
-                sendSettings.sendLongAsMms = true
-                val sendTransaction = Transaction(baseContext, sendSettings)
-                val mMessage = Message(text, getKeyFromIntent(true)!!)
-                sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID)
-                runOnUiThread { sendText.setText("") }
-            }
-
-            try {
-                timer!!.cancel()
-                timer!!.purge()
-                timer = null
-                setupWatcher()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val sendSettings = Settings()
+            sendSettings.sendLongAsMms = true
+            val sendTransaction = Transaction(baseContext, sendSettings)
+            val mMessage = Message(text, getKeyFromIntent(false)!!)
+            sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID)
+            val m = com.bradcypert.textico.models.Message(number=getKeyFromIntent(false),
+                    body=text,
+                    timestamp = Date(),
+                    read = true,
+                    id = 0,
+                    threadId = threadIdFromIntent,
+                    person = contactNameFromIntent,
+                    sentByMe = true,
+                    isArchived = false,
+                    messageType = 0,
+                    type=null,
+                    part=null)
+            val realm = Realm.getDefaultInstance()
+            realm.beginTransaction()
+            realm.insert(m)
+            realm.commitTransaction()
+            sendText.setText("")
 
         } else {
             ActivityCompat.requestPermissions(
@@ -232,22 +202,12 @@ class ConversationDetails : AppCompatActivity() {
                 val mMessage = Message(text, getKeyFromIntent(true)!!)
                 mMessage.setImage(externalImage)
                 sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID)
-                val imgv = findViewById<ImageView>(R.id.mmsImage)
                 runOnUiThread {
-                    sendText!!.setText("")
+                    sendText.setText("")
                     imgv.setImageBitmap(null)
                     imgv.visibility = View.INVISIBLE
                     externalImage = null
-                    val btn = findViewById<ImageButton>(R.id.remove_image_button)
-                    btn.visibility = View.INVISIBLE
-                }
-                try {
-                    timer!!.cancel()
-                    timer!!.purge()
-                    timer = null
-                    setupWatcher()
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                    removeImageButton.visibility = View.INVISIBLE
                 }
             }
         } else {
@@ -261,8 +221,6 @@ class ConversationDetails : AppCompatActivity() {
     }
 
     private fun setupSendButton() {
-        val sendButton = findViewById<ImageButton>(R.id.send_button)
-        val sendText = findViewById<EditText>(R.id.send_text)
         sendButton.setOnClickListener {
             val value = sendText.text.toString()
             if (externalImage != null) {
@@ -274,29 +232,25 @@ class ConversationDetails : AppCompatActivity() {
     }
 
     private fun setupMessageList() {
-        val activity = this
-        AsyncTask.execute {
-            val realm = Realm.getDefaultInstance()
-            val messages = realm.where<com.bradcypert.textico.models.Message>()
-                    .equalTo("number", getKeyFromIntent(true))
-                    .findAll()
-            smsMessages = SMSRepository.getConversationDetails(contentResolver, getKeyFromIntent(true)!!)
-            mmsMessages = MMSRepository.getAllMmsMessages(baseContext, threadIdFromIntent)
-            messagesForAdapter.addAll(messages)
-            messagesForAdapter.sort()
-            adapter = ConversationDetailsAdapter(activity, R.layout.conversation_details_list_adapter, messagesForAdapter, currentContact!!)
+        val realm = Realm.getDefaultInstance()
+        val messages = getMessages(realm)
+        adapter = ConversationDetailsAdapter(this, R.layout.conversation_details_list_adapter, messages!!, currentContact!!)
 
-            runOnUiThread {
-                title = if (currentContact!!.name != null && !currentContact!!.name.equals("")) {
-                    currentContact!!.name
-                } else {
-                    getKeyFromIntent(false)
-                }
-                messageList.adapter = adapter
-                messageList.layoutManager = LinearLayoutManager(activity)
-                messageList.scrollToPosition(messagesForAdapter.size - 1)
-            }
+        title = if (currentContact!!.name != null && !currentContact!!.name.equals("")) {
+            currentContact!!.name
+        } else {
+            getKeyFromIntent(false)
         }
+        messageList.adapter = adapter
+        messageList.layoutManager = LinearLayoutManager(this)
+        messageList.scrollToPosition(messages.size - 1)
+    }
+
+    private fun getMessages(realm: Realm): RealmResults<com.bradcypert.textico.models.Message>? {
+        return realm.where<com.bradcypert.textico.models.Message>()
+                .equalTo("rootNumber", getKeyFromIntent(true))
+                .sort("timestamp", Sort.ASCENDING)
+                .findAll()
     }
 
     private fun getKeyFromIntent(filter: Boolean): String? {

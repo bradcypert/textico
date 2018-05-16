@@ -45,9 +45,8 @@ class ConversationDetailsHolder(private val context: Context, itemView: View, va
         // this bad boi is an SMS
         if (message.messageType == 1) {
             this.mmsImage.visibility = View.VISIBLE
-            val m = message as MMS
             Thread(Runnable {
-                val bmp = MMSRepository.getMmsImage(context, m.id)
+                val bmp = MMSRepository.getMmsImage(context, message.id)
                 mmsImage.setImageBitmap(bmp)
             }).run()
         }

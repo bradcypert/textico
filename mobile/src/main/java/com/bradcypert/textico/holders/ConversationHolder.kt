@@ -60,7 +60,7 @@ class ConversationHolder(private val context: Context, itemView: View) : Recycle
 
     override fun onClick(v: View) {
         val intent = Intent(this.context, ConversationDetails::class.java)
-        intent.putExtra(ConversationDetails.KEY, this.message.number)
+        intent.putExtra(ConversationDetails.KEY, this.message.rootNumber)
         intent.putExtra(ConversationDetails.THREAD_ID, this.message.threadId)
         intent.putExtra(ConversationDetails.CONTACT_PICTURE, this.contact?.picUri)
         intent.putExtra(ConversationDetails.CONTACT_NAME, this.contact?.name)

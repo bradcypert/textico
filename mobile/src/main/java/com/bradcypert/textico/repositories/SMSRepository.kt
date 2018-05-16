@@ -29,7 +29,7 @@ object SMSRepository {
         return contentResolver.query(Telephony.Sms.CONTENT_URI, null, "address=$number", null, SORT_DATE_ASC)
     }
 
-    fun getConversations(contentResolver: ContentResolver): ArrayList<SMS> {
+    fun getSmsMessages(contentResolver: ContentResolver): ArrayList<SMS> {
         val messages = ArrayList<SMS>()
         val inboxCursor = getAllCursor(contentResolver)
         inboxCursor.moveToFirst()

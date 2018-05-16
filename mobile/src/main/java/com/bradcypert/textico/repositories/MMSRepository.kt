@@ -22,11 +22,11 @@ object MMSRepository {
         return contentResolver.query(Telephony.Mms.CONTENT_URI, null, "thread_id=$threadId", null, SORT_DATE_ASC)
     }
 
-    fun getAllMmsMessages(context: Context, threadId: String): ArrayList<MMS> {
+    fun getAllMmsMessages(context: Context): ArrayList<MMS> {
         val mms = ArrayList<MMS>()
 
         Thread(Runnable {
-            val cursor = getConversationMMSDetailsCursor(context.contentResolver, threadId)
+            val cursor = context.contentResolver.query(Telephony.Mms.CONTENT_URI, null, null, null, SORT_DATE_ASC)
             try {
                 cursor!!.moveToFirst()
 
@@ -50,7 +50,7 @@ object MMSRepository {
         return mms
     }
 
-    private fun getPartOfMMS(context: Context, mmsID: Int): String? {
+    private fun getPartOfMMS(context: Context, mmsID: Int): String {
         val selectionPart = "mid=$mmsID"
         val uri = Uri.parse("content://mms/part")
         val cursor = context.contentResolver.query(uri, null,
@@ -65,22 +65,22 @@ object MMSRepository {
                     }
                 } while (cursor.moveToNext())
             }
-            return null
+            return ""
         } finally {
             cursor!!.close()
         }
 
     }
 
-    private fun getAddressOfMMS(context: Context, mmsID: Int): String? {
-        var address: String? = null
+    private fun getAddressOfMMS(context: Context, mmsID: Int): String {
+        var address = ""
         val uri = Uri.parse("content://mms/$mmsID/addr")
-        val cursor = context.contentResolver.query(uri, arrayOf("address"), null, null, null)
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
         try {
             if (cursor!!.moveToFirst()) {
                 do {
                     address = cursor.getString(cursor.getColumnIndex(Telephony.Mms.Addr.ADDRESS))
-                    if (address != null) {
+                    if (address != "") {
                         break
                     }
                 } while (cursor.moveToNext())

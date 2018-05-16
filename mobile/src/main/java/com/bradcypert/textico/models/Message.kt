@@ -1,5 +1,6 @@
 package com.bradcypert.textico.models
 
+import android.telephony.PhoneNumberUtils
 import io.realm.RealmObject
 import java.util.Date
 
@@ -20,6 +21,8 @@ open class Message(var number: String? = null,
               var type: String? = null,
               var part: String? = null) : RealmObject(),  Comparable<Message> {
 
+    var rootNumber: String? = number?.replace("\\D+".toRegex(), "")
+
     val senderId: String?
         get() = this.person
 
@@ -31,10 +34,30 @@ open class Message(var number: String? = null,
         return this.read
     }
 
+    override fun toString(): String {
+        return super.toString() + ">>$number>>$rootNumber"
+    }
+
     override fun compareTo(other: Message): Int {
         return if (this.timestamp == null || other.timestamp == null) {
             0
         } else this.timestamp!!.compareTo(other.timestamp)
+    }
 
+    init {
+        if (number != null && number!!.matches(DIGIT_REGEX.toRegex())) {
+            this.number = PhoneNumberUtils.formatNumber(number, US_ISO)
+        }
+
+        rootNumber = if (rootNumber?.length == 11) {
+            rootNumber?.substring(1)
+        } else {
+            rootNumber
+        }
+    }
+
+    companion object {
+        private const val DIGIT_REGEX = "\\d+"
+        private const val US_ISO = "US"
     }
 }

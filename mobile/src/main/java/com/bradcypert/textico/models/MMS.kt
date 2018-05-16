@@ -1,12 +1,9 @@
 package com.bradcypert.textico.models
 
-import android.graphics.Bitmap
 import android.telephony.PhoneNumberUtils
-import io.realm.RealmObject
+import java.util.*
 
-import java.util.Date
-
-data class MMS(var number: String?,
+data class MMS(var number: String,
                val body: String?,
                val timestamp: Date?,
                val id: Int,
@@ -19,9 +16,13 @@ data class MMS(var number: String?,
                val part: String?) {
 
     init {
-        if (number?.matches(DIGIT_REGEX.toRegex())!!) {
+        if (number.matches(DIGIT_REGEX.toRegex())) {
             this.number = PhoneNumberUtils.formatNumber(number, US_ISO)
         }
+    }
+
+    override fun toString(): String {
+        return "$number"
     }
 
     companion object {

@@ -10,6 +10,8 @@ import com.bradcypert.textico.holders.ConversationDetailsHolder
 import com.bradcypert.textico.models.Contact
 import com.bradcypert.textico.models.Message
 import com.bradcypert.textico.services.ContactsService
+import io.realm.OrderedRealmCollection
+import io.realm.RealmRecyclerViewAdapter
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -18,7 +20,10 @@ import java.util.HashMap
  * Created by bradc on 3/11/2017.
  */
 
-class ConversationDetailsAdapter(private val context: Context, private val itemResource: Int, private val messages: ArrayList<Message>, private val contact: Contact) : RecyclerView.Adapter<ConversationDetailsHolder>(), SearchAndRemove {
+class ConversationDetailsAdapter(private val context: Context,
+                                 private val itemResource: Int,
+                                 private val messages: OrderedRealmCollection<Message>,
+                                 private val contact: Contact) : RealmRecyclerViewAdapter<Message,ConversationDetailsHolder>(messages,true), SearchAndRemove {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationDetailsHolder {
         // 3. Inflate the view and return the new ViewHolder

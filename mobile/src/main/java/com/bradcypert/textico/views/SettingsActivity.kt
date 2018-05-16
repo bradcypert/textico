@@ -5,26 +5,24 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.*
 import butterknife.BindView
+import butterknife.ButterKnife
 import com.bradcypert.textico.R
 import com.bradcypert.textico.migrations.DestroyDB
 import com.bradcypert.textico.migrations.SetupDB
 import com.bradcypert.textico.services.ThemeService
-import java.util.*
-
 class SettingsActivity : AppCompatActivity() {
 
-    @JvmField @BindView(R.id.rebuild_db) var sendButton: Button? = null
+    @BindView(R.id.rebuild_db) lateinit var sendButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeService.getSelectedTheme(this, true))
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+        ButterKnife.bind(this)
 
         setupMessageFilters()
 
-        this.sendButton = findViewById(R.id.rebuild_db)
-
-        this.sendButton?.setOnClickListener {
+        this.sendButton.setOnClickListener {
             val setupObs = SetupDB(applicationContext).run()
 
             DestroyDB().run().concatMap { setupObs }.subscribe {

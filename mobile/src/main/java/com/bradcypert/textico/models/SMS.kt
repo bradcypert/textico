@@ -5,7 +5,7 @@ import io.realm.RealmObject
 
 import java.util.Date
 
-class SMS constructor(var number: String?,
+data class SMS constructor(var number: String?,
                       val body: String?,
                       val timestamp: Date?,
                       val id: Int,
@@ -24,6 +24,10 @@ class SMS constructor(var number: String?,
             this.number = number
         }
         this.person = sender
+    }
+
+    override fun toString(): String {
+        return "${number}"
     }
 
     companion object {
