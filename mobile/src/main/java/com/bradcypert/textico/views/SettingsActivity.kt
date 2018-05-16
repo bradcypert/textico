@@ -6,8 +6,10 @@ import android.view.View
 import android.widget.*
 import butterknife.BindView
 import com.bradcypert.textico.R
+import com.bradcypert.textico.migrations.DestroyDB
 import com.bradcypert.textico.migrations.SetupDB
 import com.bradcypert.textico.services.ThemeService
+import java.util.*
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -23,8 +25,10 @@ class SettingsActivity : AppCompatActivity() {
         this.sendButton = findViewById(R.id.rebuild_db)
 
         this.sendButton?.setOnClickListener {
-            val setupObs = SetupDB(applicationContext).run().subscribe {
-                Toast.makeText(applicationContext, "DB built - $it", Toast.LENGTH_SHORT).show()
+            val setupObs = SetupDB(applicationContext).run()
+
+            DestroyDB().run().concatMap { setupObs }.subscribe {
+                Toast.makeText(applicationContext, "DB rebuilt - $it", Toast.LENGTH_SHORT).show()
             }
         }
     }

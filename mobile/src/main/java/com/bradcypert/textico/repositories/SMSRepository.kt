@@ -81,7 +81,7 @@ object SMSRepository {
         }
 
         return SMS(number = c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.ADDRESS)),
-                body = c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.ADDRESS)),
+                body = c.getString(c.getColumnIndex(Telephony.TextBasedSmsColumns.BODY)),
                 timestamp = Date(date),
                 id = c.getInt(c.getColumnIndex(Telephony.BaseMmsColumns._ID)),
                 threadId = c.getString(c.getColumnIndex(Telephony.BaseMmsColumns.THREAD_ID)),

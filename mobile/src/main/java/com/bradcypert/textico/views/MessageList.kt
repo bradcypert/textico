@@ -36,6 +36,7 @@ import com.bradcypert.textico.recycler.item.decorators.VerticalSpaceItemDecorato
 import com.bradcypert.textico.repositories.SMSRepository
 import com.bradcypert.textico.services.ThemeService
 import io.realm.Realm
+import io.realm.Sort
 import io.realm.kotlin.where
 import java.util.*
 import kotlin.collections.ArrayList
@@ -57,9 +58,9 @@ class MessageList : AppCompatActivity() {
         val realm = Realm.getDefaultInstance()
         messages.clear()
         if (filter == Filter.all) {
-            messages.addAll(realm.where<Message>().sort("timestamp").distinct("threadId").findAll())
+            messages.addAll(realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
         } else {
-            messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp").distinct("threadId").findAll())
+            messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
         }
 
         refreshMessageList(messages)
@@ -120,10 +121,10 @@ class MessageList : AppCompatActivity() {
                 val realm = Realm.getDefaultInstance()
 
                 if (filterValue == "Unread") {
-                    messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp").distinct("threadId").findAll())
+                    messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
                     filter = Filter.unread
                 } else {
-                    messages.addAll(realm.where<Message>().sort("timestamp").distinct("threadId").findAll())
+                    messages.addAll(realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
                     filter = Filter.all
                 }
 
@@ -138,33 +139,31 @@ class MessageList : AppCompatActivity() {
         val messageList = findViewById<RecyclerView>(R.id.message_list)
         val a = this
 
-        AsyncTask.execute {
-            adapter = MessageListAdapter(baseContext, R.layout.message_list_adapter_view, messages, a)
-            val itemDecorator = VerticalSpaceItemDecorator(5)
-            val swipe = object : SwipeToDeleteCallback(messageList) {
-                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    // Row is swiped from recycler view
-                    // remove it from adapter
-                    val pos = viewHolder.adapterPosition
-                    if (pos > -1) {
-                        try {
-                            SMSRepository.deleteThreadById(contentResolver, messages[viewHolder.adapterPosition].threadId!!)
-                            (messageList.adapter as SearchAndRemove).removeItem(pos)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-
+        adapter = MessageListAdapter(baseContext, R.layout.message_list_adapter_view, messages, a)
+        val itemDecorator = VerticalSpaceItemDecorator(5)
+        val swipe = object : SwipeToDeleteCallback(messageList) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                // Row is swiped from recycler view
+                // remove it from adapter
+                val pos = viewHolder.adapterPosition
+                if (pos > -1) {
+                    try {
+                        SMSRepository.deleteThreadById(contentResolver, messages[viewHolder.adapterPosition].threadId!!)
+                        (messageList.adapter as SearchAndRemove).removeItem(pos)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
+
                 }
             }
+        }
 
-            runOnUiThread {
-                messageList.layoutManager = LinearLayoutManager(baseContext)
-                messageList.adapter = adapter
-                messageList.addItemDecoration(itemDecorator)
-                val itemTouchHelper = ItemTouchHelper(swipe)
-                itemTouchHelper.attachToRecyclerView(messageList)
-            }
+        runOnUiThread {
+            messageList.layoutManager = LinearLayoutManager(baseContext)
+            messageList.adapter = adapter
+            messageList.addItemDecoration(itemDecorator)
+            val itemTouchHelper = ItemTouchHelper(swipe)
+            itemTouchHelper.attachToRecyclerView(messageList)
         }
     }
 
@@ -173,7 +172,7 @@ class MessageList : AppCompatActivity() {
             try {
                 val realm = Realm.getDefaultInstance()
                 messages.clear()
-                messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp").distinct("threadId").findAll())
+                messages.addAll(realm.where<Message>().equalTo("read",false).sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
                 refreshMessageList(messages)
             } catch (e: Exception) {
                 e.printStackTrace()

@@ -15,10 +15,12 @@ class SetupDB(val context: Context): Command {
                 val rSMS = sms.map(this::mapSMS)
                 val realm = Realm.getDefaultInstance()
                 realm.beginTransaction()
-                realm.copyFromRealm(rSMS)
+                realm.copyToRealm(rSMS)
                 realm.commitTransaction()
+                realm.close()
                  true
             } catch(exception: Exception) {
+                exception.printStackTrace()
                 false
             }
         }

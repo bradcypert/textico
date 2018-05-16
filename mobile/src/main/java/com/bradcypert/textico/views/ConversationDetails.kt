@@ -47,9 +47,9 @@ class ConversationDetails : AppCompatActivity() {
     private var timer: Timer? = null
     private var externalImage: Bitmap? = null
     private var currentContact: Contact? = null
-    @JvmField @BindView(R.id.listView) var messageList: RecyclerView? = null
-    @JvmField @BindView(R.id.send_text) var sendText: EditText? = null
-    @JvmField @BindView(R.id.send_button) var sendButton: ImageButton? = null
+    @BindView(R.id.listView) lateinit var messageList: RecyclerView
+    @BindView(R.id.send_text) lateinit var sendText: EditText
+    @BindView(R.id.send_button) lateinit var sendButton: ImageButton
 
     private val threadIdFromIntent: String
         get() {
@@ -292,9 +292,9 @@ class ConversationDetails : AppCompatActivity() {
                 } else {
                     getKeyFromIntent(false)
                 }
-                messageList!!.adapter = adapter
-                messageList!!.layoutManager = LinearLayoutManager(activity)
-                messageList!!.scrollToPosition(messagesForAdapter.size - 1)
+                messageList.adapter = adapter
+                messageList.layoutManager = LinearLayoutManager(activity)
+                messageList.scrollToPosition(messagesForAdapter.size - 1)
             }
         }
     }

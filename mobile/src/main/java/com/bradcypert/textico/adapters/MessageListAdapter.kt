@@ -24,11 +24,9 @@ class MessageListAdapter(private val context: Context, private val itemResource:
 
     init {
         val rootMessages = this.rootMessages
-        Thread(Runnable {
-            for (message in rootMessages) {
-                contactsByNumber[message.number] = ContactsService.getContactForNumber(context.contentResolver, message.number!!)
-            }
-        }).run()
+        for (message in rootMessages) {
+            contactsByNumber[message.number] = ContactsService.getContactForNumber(context.contentResolver, message.number!!)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConversationHolder {
@@ -41,7 +39,7 @@ class MessageListAdapter(private val context: Context, private val itemResource:
     // 4. Override the onBindViewHolder method
     override fun onBindViewHolder(holder: ConversationHolder, position: Int) {
         val message = this.messages[position]
-        holder.bindMessage(message, this.host, contactsByNumber.get(message.number))
+        holder.bindMessage(message, this.host, contactsByNumber[message.number])
     }
 
     override fun getItemCount(): Int {
