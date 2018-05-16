@@ -16,7 +16,7 @@ import java.util.ArrayList
 import java.util.Date
 
 object MMSRepository {
-    private val SORT_DATE_ASC = "date asc"
+    private const val SORT_DATE_ASC = "date asc"
 
     fun getAllMmsMessages(context: Context): ArrayList<MMS> {
         val mms = ArrayList<MMS>()

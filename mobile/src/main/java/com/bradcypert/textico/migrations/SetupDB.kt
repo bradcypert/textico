@@ -6,6 +6,7 @@ import com.bradcypert.textico.models.Message
 import com.bradcypert.textico.models.SMS
 import com.bradcypert.textico.repositories.MMSRepository
 import com.bradcypert.textico.repositories.SMSRepository
+import com.crashlytics.android.Crashlytics
 import io.reactivex.Observable
 import io.realm.Realm
 
@@ -16,7 +17,7 @@ class SetupDB(val context: Context): Command {
             try {
                 val sms = SMSRepository.getSmsMessages(context.contentResolver)
                 val rSMS = sms.map(this::mapSMS)
-                rSMS.forEach { println(it) }
+//                rSMS.forEach { println(it) }
                 val realm = Realm.getDefaultInstance()
                 realm.beginTransaction()
                 realm.insert(rSMS)
@@ -24,6 +25,7 @@ class SetupDB(val context: Context): Command {
                 realm.close()
                  succeeded = true
             } catch(exception: Exception) {
+                Crashlytics.log("Failed to import SMS")
                 exception.printStackTrace()
                 succeeded = false
             }
@@ -31,7 +33,7 @@ class SetupDB(val context: Context): Command {
              try {
                  val mms = MMSRepository.getAllMmsMessages(context)
                  val rMMS = mms.map(this::mapMMS)
-                 rMMS.forEach { println(it) }
+//                 rMMS.forEach { println(it) }
                  val realm = Realm.getDefaultInstance()
                  realm.beginTransaction()
                  realm.insert(rMMS)
@@ -40,6 +42,7 @@ class SetupDB(val context: Context): Command {
                  succeeded = true
                  succeeded
              } catch (exception: Exception) {
+                 Crashlytics.log("Failed to import MMS")
                  exception.printStackTrace()
                  succeeded = false
                  succeeded
