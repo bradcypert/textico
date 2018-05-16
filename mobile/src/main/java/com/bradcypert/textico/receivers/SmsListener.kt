@@ -16,10 +16,14 @@ import android.os.Build
 import android.provider.MediaStore
 import android.provider.Telephony
 import android.telephony.SmsMessage
+import android.widget.Toast
 import com.bradcypert.textico.views.ConversationDetails
 import com.bradcypert.textico.R
+import com.bradcypert.textico.models.Message
 import com.bradcypert.textico.services.ContactsService
 import com.bradcypert.textico.repositories.SMSRepository
+import io.realm.Realm
+import java.util.*
 
 class SmsListener : BroadcastReceiver() {
 
@@ -54,6 +58,25 @@ class SmsListener : BroadcastReceiver() {
         cv.put("date", message.timestampMillis)
         cv.put("date_sent", "1")
         context.contentResolver.insert(Telephony.Sms.Inbox.CONTENT_URI, cv)
+
+        val rMessage = Message(number = message.displayOriginatingAddress,
+                body = message.messageBody,
+                read = false,
+                timestamp = Date(message.timestampMillis),
+                id = 0,
+                threadId = null,
+                person = null,
+                sentByMe = false,
+                isArchived = false,
+                messageType = 0)
+        val realm = Realm.getDefaultInstance()
+        realm.executeTransactionAsync({ bgRealm ->
+            bgRealm.insert(rMessage)
+        }, {
+            // Transaction was a success.
+        }) {
+            Toast.makeText(context, "Something went wrong when trying to store your incoming text. Please rebuild the database from settings.", Toast.LENGTH_LONG).show()
+        }
     }
 
     /**
@@ -87,7 +110,7 @@ class SmsListener : BroadcastReceiver() {
 
         val message1 = Notification.MessagingStyle.Message(smsMessage.messageBody,
                 smsMessage.timestampMillis,
-                if (contact.name != null) contact.name else phoneNumber)
+                contact.name ?: phoneNumber)
 
         style.addMessage(message1)
 

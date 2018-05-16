@@ -18,10 +18,6 @@ import java.util.Date
 object MMSRepository {
     private val SORT_DATE_ASC = "date asc"
 
-    private fun getConversationMMSDetailsCursor(contentResolver: ContentResolver, threadId: String): Cursor? {
-        return contentResolver.query(Telephony.Mms.CONTENT_URI, null, "thread_id=$threadId", null, SORT_DATE_ASC)
-    }
-
     fun getAllMmsMessages(context: Context): ArrayList<MMS> {
         val mms = ArrayList<MMS>()
 
