@@ -3,6 +3,7 @@ package com.bradcypert.textico.holders
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
@@ -49,7 +50,13 @@ class ConversationHolder(private val context: Context, itemView: View) : Recycle
             Picasso.get().load(R.mipmap.empty_portait).into(this.contactImage)
         }
 
-        this.bodyView.text = message.body
+        if (message.body != null && message.body != "") {
+            this.bodyView.text = message.body
+            this.bodyView.setTypeface(null, Typeface.NORMAL)
+        } else {
+            this.bodyView.text = context.getString(R.string.sent_an_image)
+            this.bodyView.setTypeface(null, Typeface.ITALIC)
+        }
 
         this.hostActivity = host
 

@@ -9,6 +9,7 @@ import android.net.Uri
 import android.provider.Telephony
 
 import com.bradcypert.textico.models.MMS
+import com.google.android.mms.pdu_alt.PduHeaders
 
 import java.io.IOException
 import java.io.InputStream
@@ -68,7 +69,7 @@ object MMSRepository {
 
     }
 
-    private fun getAddressOfMMS(context: Context, mmsID: Int): String {
+    private fun getAddressOfMMS(context: Context, mmsID: Int, sentByMe: Boolean): String {
         var address = ""
         val uri = Uri.parse("content://mms/$mmsID/addr")
         val cursor = context.contentResolver.query(uri, null, null, null, null)
@@ -76,7 +77,10 @@ object MMSRepository {
             if (cursor!!.moveToFirst()) {
                 do {
                     address = cursor.getString(cursor.getColumnIndex(Telephony.Mms.Addr.ADDRESS))
-                    if (address != "") {
+                    val type = cursor.getString(cursor.getColumnIndex(Telephony.Mms.Addr.TYPE))
+                    val matchesWasSentByMe = (sentByMe && type == (PduHeaders.TO.toString()))
+                    val matchesWasSentByOther = (!sentByMe && type == PduHeaders.FROM.toString())
+                    if (address != "" && (matchesWasSentByMe || matchesWasSentByOther)) {
                         break
                     }
                 } while (cursor.moveToNext())
@@ -140,7 +144,8 @@ object MMSRepository {
 
         val id = cursor.getInt(cursor.getColumnIndex(Telephony.Mms._ID))
         val threadId = cursor.getInt(cursor.getColumnIndex(Telephony.Mms.THREAD_ID))
-        val address = getAddressOfMMS(context, id)
+        val sentByMe = cursor.getString(cursor.getColumnIndex(Telephony.Mms.DATE_SENT)) == "0"
+        val address = getAddressOfMMS(context, id, sentByMe)
         val part = getPartOfMMS(context, id)
         val message = getMmsText(context, id)
         val type = getMmsType(context, id)
@@ -151,7 +156,7 @@ object MMSRepository {
                     type = type,
                     number = address,
                     read = cursor.getString(cursor.getColumnIndex(Telephony.Mms.READ)) == "1",
-                    sentByMe = cursor.getString(cursor.getColumnIndex(Telephony.Mms.DATE_SENT)) == "0",
+                    sentByMe = sentByMe,
                     part = part,
                     person = null,
                     sender = null)

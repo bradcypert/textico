@@ -112,10 +112,10 @@ class MessageList : AppCompatActivity() {
                 val realm = Realm.getDefaultInstance()
 
                 if (filterValue == "Unread") {
-                    messages = (realm.where<Message>().equalTo("read",false).sort("timestamp", Sort.DESCENDING).distinct("rootNumber").findAll())
+                    messages = (realm.where<Message>().equalTo("read",false).sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
                     filter = Filter.unread
                 } else {
-                    messages = (realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("rootNumber").findAll())
+                    messages = (realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
                     filter = Filter.all
                 }
 
@@ -159,7 +159,7 @@ class MessageList : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             try {
                 val realm = Realm.getDefaultInstance()
-                val messages = realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("rootNumber").findAll()
+                val messages = realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll()
                 refreshMessageList(messages)
             } catch (e: Exception) {
                 e.printStackTrace()

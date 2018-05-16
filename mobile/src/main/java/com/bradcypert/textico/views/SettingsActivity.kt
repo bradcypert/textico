@@ -1,6 +1,7 @@
 package com.bradcypert.textico.views
 
 import android.os.Bundle
+import android.os.Looper
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.*
@@ -10,6 +11,9 @@ import com.bradcypert.textico.R
 import com.bradcypert.textico.migrations.DestroyDB
 import com.bradcypert.textico.migrations.SetupDB
 import com.bradcypert.textico.services.ThemeService
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+
 class SettingsActivity : AppCompatActivity() {
 
     @BindView(R.id.rebuild_db) lateinit var sendButton: Button
@@ -25,9 +29,14 @@ class SettingsActivity : AppCompatActivity() {
         this.sendButton.setOnClickListener {
             val setupObs = SetupDB(applicationContext).run()
 
-            DestroyDB().run().concatMap { setupObs }.subscribe {
-                Toast.makeText(applicationContext, "DB rebuilt - $it", Toast.LENGTH_SHORT).show()
-            }
+            DestroyDB().run().concatMap { setupObs }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe {
+//                        Looper.prepare()
+                        Toast.makeText(applicationContext, "DB rebuilt - $it", Toast.LENGTH_SHORT).show()
+//                        Looper.loop()
+                    }
         }
     }
 

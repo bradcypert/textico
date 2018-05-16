@@ -20,4 +20,5 @@
     <string name="select_theme">Select Theme</string>
     <string name="call">Call</string>
     <string name="rebuild_database">Rebuild Database</string>
+    <string name="sent_an_image">Sent an image</string>
 </resources>
