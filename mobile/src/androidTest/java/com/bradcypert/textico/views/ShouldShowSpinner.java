@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.is;
 public class ShouldShowSpinner {
 
     @Rule
-    public ActivityTestRule<MessageList> mActivityTestRule = new ActivityTestRule<>(MessageList.class);
+    public ActivityTestRule<MainView> mActivityTestRule = new ActivityTestRule<>(MainView.class);
 
     @Test
     public void shouldShowSpinner() {

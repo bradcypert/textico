@@ -1,7 +1,6 @@
 package com.bradcypert.textico.views
 
 import android.os.Bundle
-import android.os.Looper
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.*
@@ -33,9 +32,7 @@ class SettingsActivity : AppCompatActivity() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe {
-//                        Looper.prepare()
                         Toast.makeText(applicationContext, "DB rebuilt - $it", Toast.LENGTH_SHORT).show()
-//                        Looper.loop()
                     }
         }
     }

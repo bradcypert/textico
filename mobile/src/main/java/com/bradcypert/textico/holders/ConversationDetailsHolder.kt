@@ -24,7 +24,6 @@ class ConversationDetailsHolder(private val context: Context, itemView: View, va
     private var message: Message? = null
 
     init {
-
         itemView.setOnClickListener(this)
     }
 

@@ -2,12 +2,9 @@ package com.bradcypert.textico.views
 
 import android.app.ActivityOptions
 import android.app.SearchManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.os.AsyncTask
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
@@ -33,7 +30,6 @@ import com.bradcypert.textico.adapters.MessageListAdapter
 import com.bradcypert.textico.adapters.SearchAndRemove
 import com.bradcypert.textico.itemtouch.callbacks.SwipeToDeleteCallback
 import com.bradcypert.textico.models.Message
-import com.bradcypert.textico.models.SMS
 import com.bradcypert.textico.recycler.item.decorators.VerticalSpaceItemDecorator
 import com.bradcypert.textico.repositories.SMSRepository
 import com.bradcypert.textico.services.ThemeService
@@ -41,23 +37,14 @@ import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
 import io.realm.kotlin.where
-import java.util.*
-import kotlin.collections.ArrayList
 
-class MessageList : AppCompatActivity() {
+class MainView : AppCompatActivity() {
     private var adapter: MessageListAdapter? = null
     private var filter: Filter? = null
     private var initialTheme: String? = null
-    private var isListenerRegistered = false
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
     @BindView(R.id.filter_spinner) lateinit var filterSpinner: Spinner
+    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
     @BindView(R.id.message_list) lateinit var messageList: RecyclerView
-    private val listener = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            // TODO: Removeable?
-//            refreshMessages()
-        }
-    }
 
     private enum class Filter {
         all, unread
@@ -79,24 +66,22 @@ class MessageList : AppCompatActivity() {
         window.sharedElementExitTransition = Slide(Gravity.START)
 
         setupMessageFilters()
-        setupMessageList()
-        setupFab()
-        setupWatcher()
+//        setupMessageList()
+//        setupFab()
+        val fm = fragmentManager
+        val ft = fm.beginTransaction()
+        ft.add(R.id.content_message_list_root, com.bradcypert.textico.views.fragments.MessageList())
+        ft.commit()
+
     }
 
-    private fun setupFab() {
-        val a = this
-        fab.setOnClickListener {
-            val intent = Intent(baseContext, ComposeActivity::class.java)
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(a).toBundle())
-        }
-    }
-
-    private fun setupWatcher() {
-        val filter = IntentFilter("com.bradcypert.updateData")
-        registerReceiver(listener, filter)
-        isListenerRegistered = true
-    }
+//    private fun setupFab() {
+//        val a = this
+//        fab.setOnClickListener {
+//            val intent = Intent(baseContext, ComposeActivity::class.java)
+//            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(a).toBundle())
+//        }
+//    }
 
     private fun setupMessageFilters() {
         val filters = ArrayAdapter.createFromResource(this,
@@ -155,42 +140,32 @@ class MessageList : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(messageList)
     }
 
-    private fun setupMessageList() {
-        if (ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            try {
-                val realm = Realm.getDefaultInstance()
-                val messages = realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll()
-                refreshMessageList(messages)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        } else {
-            ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_CONTACTS),
-                    REQUEST_CODE_ASK_PERMISSIONS
-            )
-            setupMessageList()
-        }
-    }
+//    private fun setupMessageList() {
+//        if (ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+//            try {
+//                val realm = Realm.getDefaultInstance()
+//                val messages = realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll()
+//                refreshMessageList(messages)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        } else {
+//            ActivityCompat.requestPermissions(
+//                    this,
+//                    arrayOf(android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_CONTACTS),
+//                    REQUEST_CODE_ASK_PERMISSIONS
+//            )
+//            setupMessageList()
+//        }
+//    }
 
     public override fun onResume() {
         if (this.initialTheme != ThemeService.getThemeName(this)) {
             val intent = Intent(this, this.javaClass)
             startActivity(intent)
             finish()
-        } else {
-            setupWatcher()
         }
         super.onResume()
-    }
-
-    public override fun onPause() {
-        super.onPause()
-        if (isListenerRegistered) {
-            unregisterReceiver(listener)
-            isListenerRegistered = false
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -227,9 +202,5 @@ class MessageList : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    companion object {
-        private const val REQUEST_CODE_ASK_PERMISSIONS = 123
     }
 }
