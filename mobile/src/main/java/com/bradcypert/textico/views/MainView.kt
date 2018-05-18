@@ -1,163 +1,41 @@
 package com.bradcypert.textico.views
 
-import android.app.ActivityOptions
-import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.transition.Slide
 import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.SearchView
-import android.widget.Spinner
-import butterknife.BindView
-import butterknife.ButterKnife
 import com.bradcypert.textico.R
-import com.bradcypert.textico.adapters.MessageListAdapter
-import com.bradcypert.textico.adapters.SearchAndRemove
-import com.bradcypert.textico.itemtouch.callbacks.SwipeToDeleteCallback
-import com.bradcypert.textico.models.Message
-import com.bradcypert.textico.recycler.item.decorators.VerticalSpaceItemDecorator
-import com.bradcypert.textico.repositories.SMSRepository
 import com.bradcypert.textico.services.ThemeService
-import io.realm.Realm
-import io.realm.RealmResults
-import io.realm.Sort
-import io.realm.kotlin.where
+import com.bradcypert.textico.views.fragments.TourContainer
 
-class MainView : AppCompatActivity() {
-    private var adapter: MessageListAdapter? = null
-    private var filter: Filter? = null
-    private var initialTheme: String? = null
-    @BindView(R.id.filter_spinner) lateinit var filterSpinner: Spinner
-    @BindView(R.id.fab) lateinit var fab: FloatingActionButton
-    @BindView(R.id.message_list) lateinit var messageList: RecyclerView
-
-    private enum class Filter {
-        all, unread
+class MainView : AppCompatActivity(), TourContainer.OnTourCompleteListener {
+    override fun onTourComplete() {
+        val fm = fragmentManager
+        val ft = fm.beginTransaction()
+        ft.replace(R.id.content_message_list_root, com.bradcypert.textico.views.fragments.MessageList())
+        ft.commit()
     }
+
+    private var initialTheme: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(ThemeService.getSelectedTheme(this, false))
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_conversation_list)
+        setContentView(R.layout.main_view_activity)
         this.initialTheme = ThemeService.getThemeName(this)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-
-        ButterKnife.bind(this)
 
         window.exitTransition = Slide(Gravity.START)
         window.enterTransition = Slide(Gravity.START)
         window.sharedElementEnterTransition = Slide(Gravity.START)
         window.sharedElementExitTransition = Slide(Gravity.START)
 
-        setupMessageFilters()
-//        setupMessageList()
-//        setupFab()
         val fm = fragmentManager
         val ft = fm.beginTransaction()
-        ft.add(R.id.content_message_list_root, com.bradcypert.textico.views.fragments.MessageList())
+        ft.add(R.id.content_message_list_root, com.bradcypert.textico.views.fragments.TourContainer())
         ft.commit()
 
     }
-
-//    private fun setupFab() {
-//        val a = this
-//        fab.setOnClickListener {
-//            val intent = Intent(baseContext, ComposeActivity::class.java)
-//            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(a).toBundle())
-//        }
-//    }
-
-    private fun setupMessageFilters() {
-        val filters = ArrayAdapter.createFromResource(this,
-                R.array.filter_options, R.layout.filter_option)
-
-        filters.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        filterSpinner.adapter = filters
-        filterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val filterValue = if (position > 0) parent.getItemAtPosition(position) as String else ""
-                val messages: RealmResults<Message>
-
-                val realm = Realm.getDefaultInstance()
-
-                if (filterValue == "Unread") {
-                    messages = (realm.where<Message>().equalTo("read",false).sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
-                    filter = Filter.unread
-                } else {
-                    messages = (realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll())
-                    filter = Filter.all
-                }
-
-                refreshMessageList(messages)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-    }
-
-    private fun refreshMessageList(messages: RealmResults<Message>) {
-        adapter = MessageListAdapter(baseContext, R.layout.message_list_adapter_view, messages, this)
-        val itemDecorator = VerticalSpaceItemDecorator(5)
-        val swipe = object : SwipeToDeleteCallback(messageList) {
-            //TODO: Better way to do this?
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                // Row is swiped from recycler view
-                // remove it from adapter
-                val pos = viewHolder.adapterPosition
-                if (pos > -1) {
-                    try {
-                        //TODO: Persist changes to realm as well
-                        SMSRepository.deleteThreadById(contentResolver, messages[viewHolder.adapterPosition]!!.threadId!!)
-                        (messageList.adapter as SearchAndRemove).removeItem(pos)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-
-                }
-            }
-        }
-
-        messageList.layoutManager = LinearLayoutManager(baseContext)
-        messageList.adapter = adapter
-        messageList.addItemDecoration(itemDecorator)
-        val itemTouchHelper = ItemTouchHelper(swipe)
-        itemTouchHelper.attachToRecyclerView(messageList)
-    }
-
-//    private fun setupMessageList() {
-//        if (ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-//            try {
-//                val realm = Realm.getDefaultInstance()
-//                val messages = realm.where<Message>().sort("timestamp", Sort.DESCENDING).distinct("threadId").findAll()
-//                refreshMessageList(messages)
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        } else {
-//            ActivityCompat.requestPermissions(
-//                    this,
-//                    arrayOf(android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_CONTACTS),
-//                    REQUEST_CODE_ASK_PERMISSIONS
-//            )
-//            setupMessageList()
-//        }
-//    }
 
     public override fun onResume() {
         if (this.initialTheme != ThemeService.getThemeName(this)) {
@@ -166,41 +44,5 @@ class MainView : AppCompatActivity() {
             finish()
         }
         super.onResume()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_message_list, menu)
-
-        // Associate searchable configuration with the SearchView
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        val searchView = menu.findItem(R.id.search).actionView as SearchView
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(s: String): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(query: String): Boolean {
-                adapter!!.search(query)
-                return true
-            }
-        })
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        val id = item.itemId
-
-        if (id == R.id.action_settings) {
-            val intent = Intent(baseContext, SettingsActivity::class.java)
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
-            return true
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 }

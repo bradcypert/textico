@@ -55,7 +55,6 @@ class MessageListAdapter(private val context: Context, private val itemResource:
     }
 
     override fun search(query: String) {
-        messages.clear()
         if (query == "") {
             messages.addAll(rootMessages)
         } else {
