@@ -24,6 +24,8 @@
     <string name="default_message_app_explaination">Textico works best as your default SMS application. Do you want to make Textico your default messaging app?</string>
     <string name="default_message_app_CTA">Let\'s do it!</string>
     <string name="tour_welcome_text">Thanks for testing Textico! The next few steps will help you set up the application!</string>
-    <string name="tour_setup_database_explanation">Textico needs to setup your local database for text messages. Click the button below to start that!</string>
+    <string name="tour_setup_database_explanation">Textico needs to setup your local database for text messages. Click the button below to start!</string>
     <string name="tour_final_CTA">Let me text already!</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
 </resources>

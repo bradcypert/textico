@@ -6,4 +6,14 @@
     <string name="search_hint">Nombre o número de contacto</string>
     <string name="you">Tú</string>
     <string name="select_theme">Seleccione el tema</string>
+    <string name="call">Llamada</string>
+    <string name="rebuild_database">"Reconstruir base de datos "</string>
+    <string name="sent_an_image">"Enviado una imagen "</string>
+    <string name="default_message_app_explaination">"Textico funciona mejor como su aplicación de SMS predeterminada. ¿Desea que Textico sea su aplicación de mensajería predeterminada? "</string>
+    <string name="default_message_app_CTA">¡Vamos a hacerlo!</string>
+    <string name="tour_welcome_text">"Gracias por probar Textico! ¡Los próximos pasos lo ayudarán a configurar la aplicación! "</string>
+    <string name="tour_setup_database_explanation">"Textico necesita configurar su base de datos local para mensajes de texto. Haga clic en el botón de abajo para comenzar! "</string>
+    <string name="tour_final_CTA">"Déjame mandar un mensaje de texto ya! "</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Siguiente</string>
 </resources>
