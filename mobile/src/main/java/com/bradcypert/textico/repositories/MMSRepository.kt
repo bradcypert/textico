@@ -1,20 +1,16 @@
 package com.bradcypert.textico.repositories
 
-import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.Telephony
-
 import com.bradcypert.textico.models.MMS
 import com.google.android.mms.pdu_alt.PduHeaders
-
 import java.io.IOException
 import java.io.InputStream
-import java.util.ArrayList
-import java.util.Date
+import java.util.*
 
 object MMSRepository {
     private const val SORT_DATE_ASC = "date asc"

@@ -26,12 +26,15 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import com.bradcypert.textico.R
 import com.bradcypert.textico.adapters.ConversationDetailsAdapter
+import com.bradcypert.textico.migrations.RefreshMMS
 import com.bradcypert.textico.models.Contact
 import com.bradcypert.textico.repositories.SMSRepository
 import com.bradcypert.textico.services.ThemeService
 import com.klinker.android.send_message.Message
 import com.klinker.android.send_message.Settings
 import com.klinker.android.send_message.Transaction
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
@@ -43,6 +46,7 @@ class ConversationDetails : AppCompatActivity() {
     private var adapter: ConversationDetailsAdapter? = null
     private var externalImage: Bitmap? = null
     private var currentContact: Contact? = null
+    private var imageUri: Uri? = null
     @BindView(R.id.listView) lateinit var messageList: RecyclerView
     @BindView(R.id.send_text) lateinit var sendText: EditText
     @BindView(R.id.send_button) lateinit var sendButton: ImageButton
@@ -132,6 +136,7 @@ class ConversationDetails : AppCompatActivity() {
         if (requestCode == IMAGE_REQUEST_CODE) {
             if (data.data != null) {
                 try {
+                    imageUri = data.data
                     externalImage = BitmapFactory.decodeStream(applicationContext.contentResolver.openInputStream(data.data!!))
                     val imgv = findViewById<ImageView>(R.id.mmsImage)
                     imgv.setImageBitmap(externalImage)
@@ -140,6 +145,7 @@ class ConversationDetails : AppCompatActivity() {
                     val btn = findViewById<ImageButton>(R.id.remove_image_button)
                     btn.visibility = View.VISIBLE
                     btn.setOnClickListener {
+                        imageUri = null
                         externalImage = null
                         imgv.visibility = View.GONE
                         imgv.setImageBitmap(null)
@@ -194,26 +200,36 @@ class ConversationDetails : AppCompatActivity() {
     private fun sendMMS(text: String) {
         if (ContextCompat.checkSelfPermission(baseContext, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(baseContext, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
 
-            AsyncTask.execute {
-                val sendSettings = Settings()
-                sendSettings.sendLongAsMms = true
-                sendSettings.useSystemSending = true
-                val sendTransaction = Transaction(baseContext, sendSettings)
-                val mMessage = Message(text, getKeyFromIntent(true)!!)
-                mMessage.setImage(externalImage)
-                sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID)
-                runOnUiThread {
-                    sendText.setText("")
-                    imgv.setImageBitmap(null)
-                    imgv.visibility = View.INVISIBLE
-                    externalImage = null
-                    removeImageButton.visibility = View.INVISIBLE
-                }
-            }
+            val sendSettings = Settings()
+            sendSettings.sendLongAsMms = true
+            sendSettings.useSystemSending = true
+            val sendTransaction = Transaction(baseContext, sendSettings)
+            val mMessage = Message(text, getKeyFromIntent(true)!!)
+            mMessage.setImage(externalImage)
+            Toast.makeText(this.applicationContext, "Sending MMS...", Toast.LENGTH_SHORT).show()
+            sendTransaction.sendNewMessage(mMessage, Transaction.NO_THREAD_ID)
+            RefreshMMS(this.applicationContext).run()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe {
+                        Toast.makeText(this.applicationContext, "I know. That's bad. I'm working on it :)", Toast.LENGTH_SHORT).show()
+                    }
+            sendText.setText("")
+            imgv.visibility = View.GONE
+            removeImageButton.visibility = View.GONE
+            imgv.setImageBitmap(null)
+            externalImage = null
+            imageUri = null
         } else {
             ActivityCompat.requestPermissions(
                     this@ConversationDetails,
-                    arrayOf(Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS, Manifest.permission.RECEIVE_SMS, Manifest.permission.RECEIVE_MMS, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE, Manifest.permission.CHANGE_NETWORK_STATE),
+                    arrayOf(Manifest.permission.READ_SMS,
+                            Manifest.permission.SEND_SMS,
+                            Manifest.permission.RECEIVE_SMS,
+                            Manifest.permission.RECEIVE_MMS,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_PHONE_STATE,
+                            Manifest.permission.CHANGE_NETWORK_STATE),
                     REQUEST_CODE_ASK_PERMISSIONS
             )
             setupSendButton()
